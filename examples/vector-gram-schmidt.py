@@ -1,6 +1,12 @@
+import matplotlib.pyplot as plt
 from odeanimate.vector import Vector
 
+def GramSchmidt(*vectors):
+    pass
+
 if __name__ == '__main__':
-    a = Vector(1, 2, 3)
-    b = Vector(3, 2, 1)
-    print(a + b)
+    non_orthonormal = [
+        Vector(1, -1, 1),
+        Vector(1, 0, 1),
+        Vector(1, 1, 2)
+    ]

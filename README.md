@@ -38,3 +38,5 @@ In order to work with this project, perform all executions using [`pipenv`](http
  - `pipenv run python` will run `python` with the configuration required to use this project.
  - `pipenv run <script-name>`, will execute `script.<script-name>` from the `Pipfile`.
 
+No users except owner is allowed to commit to master branch.
+

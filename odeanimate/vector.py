@@ -15,8 +15,13 @@ class Vector:
     def __len__(self):
         return self.dimension
 
-    def euclidian_norm(self):
+    def euclidean_norm(self):
         return math.sqrt(sum(i**2 for i in self.values))
+
+
+    def dot(self, vector):
+        return sum(i*j in zip(self.values, vector.values))
+
 
     def __add__(self, right):
         """

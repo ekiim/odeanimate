@@ -29,3 +29,12 @@ project are:
  - [ ] Utilities for 3D curves.
  - [ ] Utilities for 3D surfaces.
  - [ ] Animation Loop.
+
+## Development
+
+In order to work with this project, perform all executions using [`pipenv`](https://pipenv.pypa.io/en/latest/).
+
+ - Install the project `pipenv install` (do it when ever you update the `Pipfile` at least).
+ - `pipenv run python` will run `python` with the configuration required to use this project.
+ - `pipenv run <script-name>`, will execute `script.<script-name>` from the `Pipfile`.
+

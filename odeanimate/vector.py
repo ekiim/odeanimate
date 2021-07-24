@@ -43,14 +43,14 @@ class Vector:
 
     def __abs__(self):
         """
-        >>> Vector(4, -3)
+        >>> abs(Vector(4, -3))
         5.0
         """
         return self.euclidean_norm()
 
-    def __matmult__(self, right):
+    def __matmul__(self, right):
         """
-        >>> Vector(1, 2, 3) @ (Vector(1, 2, 3))
+        >>> Vector(1, 2, 3) @ Vector(1, 2, 3)
         14
         """
         return self.dot(right)
@@ -153,4 +153,4 @@ class Vector:
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod(verbose=True)
+    doctest.testmod(verbose=False)

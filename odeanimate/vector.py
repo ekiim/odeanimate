@@ -4,7 +4,6 @@ from odeanimate.utils import dense_range
 
 
 class Vector:
-
     def __init__(self, *args, **kwargs):
         if any((not isinstance(i, (int, float, complex,)) for i in args)):
             raise Exception(
@@ -108,7 +107,6 @@ class Vector:
             pass
         return returnable
 
-
     def __getitem__(self, _slice):
         """
         >>> Vector(1,2,3,4,5)[1]
@@ -136,6 +134,11 @@ class Vector:
     def __repr__(self):
         return str(self)
 
+    def __float__(self):
+        if len(self) == 1:
+            return float(self.values[0])
+        raise Exception("Can not convert vector to number")
+
     @classmethod
     def codomain(cls, func):
         """
@@ -156,13 +159,42 @@ class Vector:
         new_func = cls.codomain(func)
 
         def _range_evaluation(start, end, step=1):
-            return [
-                new_func(t)
-                for t in dense_range(start, end, step)
-            ]
+            return VectorCollection(*[
+                new_func(t) for t in dense_range(start, end, step)
+            ])
 
         new_func.range = _range_evaluation
         return new_func
+
+
+class VectorCollection:
+    def __init__(self, *args, **kwargs):
+        if len(args) == 0:
+            raise Exception("Empty collection")
+        if not all(isinstance(a, Vector) for a in args):
+            raise Exception("This are not vectors")
+        if not all(len(args[0]) == len(a) for a in args):
+            raise Exception("Different dimension vectors")
+        self.collection = list(args)
+        self.count = len(args)
+        self.dimension = len(args[0])
+
+    def __len__(self):
+        return self.count
+
+    def __getitem__(self, _slice):
+        returnable = self.collection[_slice]
+        if isinstance(returnable, list):
+            returnable = VectorCollection(*returnable)
+        return returnable
+
+    def components(self, *comp):
+        if len(comp) == 0:
+            comp = list(range(self.dimension))
+        return [
+            [float(vec[i]) for vec in self.collection]
+            for i in comp
+        ]
 
 
 if __name__ == '__main__':

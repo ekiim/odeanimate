@@ -15,13 +15,45 @@ class Vector:
     def __len__(self):
         return self.dimension
 
+    def validation_dimension(self, other):
+        if len(self) != len(other):
+            raise Exception(
+                f"Objeto {self} no es de "
+                f"la misma dimension que objeto {other}."
+            )
+
+    def validation_type(self, other):
+        if not isinstance(other, self.__class__):
+            raise Exception(
+                f"Objeto {other} no es del mismo tipo que"
+                f"objeto {self}"
+            )
+
     def euclidean_norm(self):
         return math.sqrt(sum(i**2 for i in self.values))
 
+    def dot(self, right):
+        """
+        >>> Vector(1, 2, 3).dot(Vector(1, 2, 3))
+        14
+        """
+        self.validation_type(right)
+        self.validation_dimension(right)
+        return sum(i*j for (i, j) in zip(self.values, right.values))
 
-    def dot(self, vector):
-        return sum(i*j in zip(self.values, vector.values))
+    def __abs__(self):
+        """
+        >>> abs(Vector(4, -3))
+        5.0
+        """
+        return self.euclidean_norm()
 
+    def __matmul__(self, right):
+        """
+        >>> Vector(1, 2, 3) @ Vector(1, 2, 3)
+        14
+        """
+        return self.dot(right)
 
     def __add__(self, right):
         """
@@ -29,10 +61,8 @@ class Vector:
         >>> a + b
         Vector(3, 4, 5)
         """
-        if not isinstance(right, self.__class__):
-            raise Exception(
-                f"Can not add type {type(right).__name__} with vector."
-            )
+        self.validation_type(right)
+        self.validation_dimension(right)
         return Vector(*[sum(i) for i in zip(self.values, right.values)])
 
     def __mul__(self, left):
@@ -47,24 +77,36 @@ class Vector:
             f"Can not operate with {type(left).__name__}"
         )
 
+    def __sub__(self, right):
+        return self + (-1) * right
+
     def __rmul__(self, right):
         """
         >>> a, b = Vector(1, 1, 1), Vector(2, 3, 4)
         >>> 2*a
         Vector(2, 2, 2)
         """
-        if isinstance(right, (int, float, complex)):
-            return self * right
-        raise Exception(
-            f"Operación entre {type(right).__name__} y Vector no es posible"
-        )
+        return self * right
+
+    def __truediv__(self, left):
+        """
+        >>> Vector(10, 10, 10) / 10
+        Vector(1.0, 1.0, 1.0)
+        """
+        return self * (1/left)
 
     def __eq__(self, other):
-        criteria = [
-            self.dimension == other.dimension,
-            all((i == j for (i, j) in zip(self.values, other.values)))
-        ]
-        return all(criteria)
+        returnable = False
+        try:
+            criteria = [
+                self.dimension == other.dimension,
+                all((i == j for (i, j) in zip(self.values, other.values)))
+            ]
+            returnable = all(criteria)
+        except:
+            pass
+        return returnable
+
 
     def __getitem__(self, _slice):
         """
@@ -111,4 +153,4 @@ class Vector:
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest.testmod(verbose=False)

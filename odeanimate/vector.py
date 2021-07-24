@@ -1,5 +1,6 @@
 import math
 from functools import wraps
+from odeanimate.utils import dense_range
 
 
 class Vector:
@@ -149,6 +150,19 @@ class Vector:
         def _vector_codomain(*args, **kwargs):
             return Vector(*func(*args, **kwargs))
         return _vector_codomain
+
+    @classmethod
+    def curve(cls, func):
+        new_func = cls.codomain(func)
+
+        def _range_evaluation(start, end, step=1):
+            return [
+                new_func(t)
+                for t in dense_range(start, end, step)
+            ]
+
+        new_func.range = _range_evaluation
+        return new_func
 
 
 if __name__ == '__main__':

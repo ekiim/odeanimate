@@ -19,8 +19,16 @@ class Vector:
         return math.sqrt(sum(i**2 for i in self.values))
 
 
-    def dot(self, vector):
-        return sum(i*j in zip(self.values, vector.values))
+    def dot(self, right):
+        if not isinstance(right, self.__class__):
+            raise Exception(
+                f"No puedes hacer producto punto un tipo {type(right).__name__} con un Vector"
+            )
+        if self.dimension != right.dimension:
+            raise Exception (
+                f"No puedes hacer un producto punto entre un Vector de dimension {self.dimension} y un Vector de dimension {right.dimension}"
+            )
+        return sum(i*j for (i,j) in zip(self.values, right.values))
 
 
     def __add__(self, right):
@@ -33,7 +41,22 @@ class Vector:
             raise Exception(
                 f"Can not add type {type(right).__name__} with vector."
             )
+        if self.dimension != right.dimension:
+            raise Exception(
+                f"Can not add a vector with dimension {self.dimension} to a vector with dimension {right.dimension}"
+            )
         return Vector(*[sum(i) for i in zip(self.values, right.values)])
+
+    def __sub__(self, right):
+        if not isinstance(right, self.__class__):
+            raise Exception(
+                f"Can not sub type {type(right).__name__} with vector"
+            )
+        if self.dimension != right.dimension:
+            raise Exception(
+                f"Can not sub a vector with dimension {self.dimension} to a vector with dimension {right.dimension}"
+            )
+        return Vector(*[(i-j) for (i,j) in zip(self.values, right.values)])
 
     def __mul__(self, left):
         """
@@ -57,6 +80,13 @@ class Vector:
             return self * right
         raise Exception(
             f"Operación entre {type(right).__name__} y Vector no es posible"
+        )
+
+    def __truediv__(self, left):
+        if isinstance(left, (int, float, complex)):
+            return Vector(*[v/left for v in self.values])
+        raise Exception(
+            f"Operación entre {type(left).__name__} y Vector no es posible"
         )
 
     def __eq__(self, other):

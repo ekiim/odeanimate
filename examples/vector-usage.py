@@ -14,5 +14,4 @@ if __name__ == '__main__':
     ax.set_zlim(-5, 5)
     ax.quiver([0],[0],[0], [a.values[0]], [a.values[1]], [a.values[2]])
     image_file = output_file(__file__, '.png')
-    print(image_file)
     fig.savefig(image_file)

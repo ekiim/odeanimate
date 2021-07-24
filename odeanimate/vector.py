@@ -41,6 +41,20 @@ class Vector:
         self.validation_dimension(right)
         return sum(i*j for (i, j) in zip(self.values, right.values))
 
+    def __abs__(self):
+        """
+        >>> Vector(4, -3)
+        5.0
+        """
+        return self.euclidean_norm()
+
+    def __matmult__(self, right):
+        """
+        >>> Vector(1, 2, 3) @ (Vector(1, 2, 3))
+        14
+        """
+        return self.dot(right)
+
     def __add__(self, right):
         """
         >>> a, b = Vector(1, 1, 1), Vector(2, 3, 4)

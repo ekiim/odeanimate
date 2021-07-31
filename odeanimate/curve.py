@@ -1,4 +1,4 @@
-from odeanimate.vector import Vector2D
+from odeanimate.vector import Vector2D, Vector3D
 
 
 class Curve:
@@ -24,4 +24,10 @@ class Curve:
 class Curve2D(Curve):
     def __init__(self, callable=None, **kwargs):
         self.codomain = Vector2D
+        self._callable = callable
+
+
+class Curve3D(Curve):
+    def __init__(self, callable=None, **kwargs):
+        self.codomain = Vector3D
         self._callable = callable

@@ -32,7 +32,10 @@ class Vector:
             )
 
     def euclidean_norm(self):
-        return math.sqrt(sum(i**2 for i in self.values))
+        return self.norm(p=2)
+
+    def norm(self, p=2):
+        return sum(i**p for i in self.values)**(1.0 / p)
 
     def dot(self, right):
         """

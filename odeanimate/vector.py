@@ -5,6 +5,8 @@ from odeanimate.utils import dense_range
 
 class Vector:
     def __init__(self, *args, **kwargs):
+        if isinstance(args[0], self.__class__):
+            args = args[0].values
         if any((not isinstance(i, (int, float, complex,)) for i in args)):
             raise Exception(
                 "Error on args, invalid types."
@@ -25,7 +27,7 @@ class Vector:
     def validation_type(self, other):
         if not isinstance(other, self.__class__):
             raise Exception(
-                f"Objeto {other} no es del mismo tipo que"
+                f"Objeto {other} no es del mismo tipo que "
                 f"objeto {self}"
             )
 
@@ -63,7 +65,7 @@ class Vector:
         """
         self.validation_type(right)
         self.validation_dimension(right)
-        return Vector(*[sum(i) for i in zip(self.values, right.values)])
+        return self.__class__(*[sum(i) for i in zip(self.values, right.values)])
 
     def __mul__(self, left):
         """
@@ -72,7 +74,7 @@ class Vector:
         Vector(2, 2, 2)
         """
         if isinstance(left, (int, float, complex)):
-            return Vector(*[left*v for v in self.values])
+            return self.__class__(*[left*v for v in self.values])
         raise Exception(
             f"Can not operate with {type(left).__name__}"
         )
@@ -123,9 +125,9 @@ class Vector:
         Exception: Invalid Descriptor.
         """
         if isinstance(_slice, slice):
-            return Vector(*self.values[_slice])
+            return self.__class__(*self.values[_slice])
         elif isinstance(_slice, int):
-            return Vector(self.values[_slice])
+            return self.values[_slice]
         raise Exception("Invalid Descriptor.")
 
     def __str__(self):
@@ -151,21 +153,66 @@ class Vector:
         """
         @wraps(func)
         def _vector_codomain(*args, **kwargs):
-            return Vector(*func(*args, **kwargs))
+            return cls(*func(*args, **kwargs))
         return _vector_codomain
 
     @classmethod
     def curve(cls, func):
+
         new_func = cls.codomain(func)
 
         def _range_evaluation(start, end, step=1):
             return VectorCollection(*[
                 new_func(t) for t in dense_range(start, end, step)
             ])
-
         new_func.range = _range_evaluation
+
+        def _derivative(t, h=0.001, **kwargs):
+            return (new_func(t + h) - new_func(t - h)) / (2*h)
+
+        new_func.derivative = _derivative
+
         return new_func
 
+
+class Vector2D(Vector):
+    def __init__(self, x, y, **kwargs):
+        super().__init__(x, y, **kwargs)
+
+    def __str__(self):
+        return f"Vector2D{self.values}"
+
+    def x(self):
+        return self.values[0]
+
+    def y(self):
+        return self.values[-1]
+
+    def i(self):
+        return Vector2D(-1*self.y, self.x)
+
+class Vector3D(Vector):
+    def __init__(self, x, y, z, **kwargs):
+        super().__init__(x, y, z, **kwargs)
+
+    def __str__(self):
+        return f"Vector3D{self.values}"
+
+    def x(self):
+        return self.values[0]
+
+    def y(self):
+        return self.values[1]
+
+    def z(self):
+        return self.values[2]
+
+    def cross(self, other):
+        return self.__class__(
+            (self.y*other.z - self.z*other.y),
+            -(self.x*other.z - self.z*other.x),
+            (self.x*other.y - self.y*other.x),
+        )
 
 class VectorCollection:
     def __init__(self, *args, **kwargs):
@@ -187,6 +234,9 @@ class VectorCollection:
         if isinstance(returnable, list):
             returnable = VectorCollection(*returnable)
         return returnable
+
+    def __iter__(self):
+        return iter(self.collection)
 
     def components(self, *comp):
         if len(comp) == 0:

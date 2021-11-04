@@ -10,13 +10,17 @@ and `&` for _intersection_.
 """
 
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from functools import reduce
 from odeanimate.utils import h as _h, DenseRange
 
 
 class MetaInterval(ABC):
     _parts = tuple()
+
+    @abstractmethod
+    def __init__(self, *args, **kwargs):
+        pass
 
     def __iter__(self):
         return self()
@@ -37,6 +41,12 @@ class VoidInterval(MetaInterval):
 
     def __contains__(self, other):
         return isinstance(other, self.__class__)
+
+    def __bool__(self):
+        return False
+
+    def __len__(self):
+        return 0
 
     def __or__(self, other):
         """
@@ -152,6 +162,10 @@ class DisjointInterval(MetaInterval):
             key=lambda k: k.limits[0]
         )
 
+    @property
+    def non_disjoint_interval(self):
+        return self._parts
+
     def __repr__(self):
         label = "U".join([str(list(i.limits)) for i in self._parts])
         return f"<DisjointInterval {label}>"
@@ -164,6 +178,9 @@ class DisjointInterval(MetaInterval):
         False
         """
         return any((other in i for i in self._parts))
+
+    def __len__(self):
+        return sum(map(len, self._parts))
 
     def __rand__(self, other):
         return other & self

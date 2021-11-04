@@ -70,6 +70,10 @@ class VoidInterval(MetaInterval):
             return self
         raise Exception("Can not do intersection")
 
+    @property
+    def non_disjoint_interval(self):
+        return []
+
 
 class Interval(MetaInterval):
     def __init__(self, a, b):
@@ -82,6 +86,10 @@ class Interval(MetaInterval):
     @property
     def limits(self):
         return (self.lower, self.upper)
+
+    @property
+    def non_disjoint_interval(self):
+        return [self]
 
     def __contains__(self, value):
         if isinstance(value, VoidInterval):

@@ -115,7 +115,7 @@ class Vector:
     def __getitem__(self, _slice):
         """
         >>> Vector(1,2,3,4,5)[1]
-        Vector(2,)
+        2
         >>> Vector(1,2,3,4,5)[1:3]
         Vector(2, 3)
         >>> Vector(1,2,3,4,5)[::-1]

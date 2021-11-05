@@ -1,3 +1,6 @@
+from pathlib import Path
+
+# Constant used as base delta.
 h = 0.001
 
 
@@ -28,3 +31,9 @@ class DenseRange:
         returnable = self.current
         self.current += self.step
         return returnable
+
+
+def output_file(file, ext, project_root=Path(__file__).parent.parent):
+    assets_dir = project_root / 'assets'
+    assets_dir.mkdir(exist_ok=True)
+    return str(assets_dir / (Path(file).stem + ext))

@@ -12,6 +12,27 @@ Dev Notes:
 
 """
 
+def riemann_variant_step(variant, x, step):
+    returnable = x
+    if variant == 'left':
+        pass
+    if variant == 'mid':
+        returnable += step/2
+    if variant == 'right':
+        returnable += step
+    return returnable
+
+
+def riemann_variant(variant, f, x, step):
+    returnable = 0
+    if variant == 'left':
+        returnable = riemann_left(f, x, x + step)
+    if variant == 'mid':
+        returnable = riemann_mid(f, x, x + step)
+    if variant == 'right':
+        returnable = riemann_right(f, x, x + step)
+    return returnable
+
 
 def riemann_left(f, a, b):
     return (b - a)*f(a)
@@ -35,4 +56,3 @@ def simpson_first_rule(f, a, b):
 
 def simpson_second_rule(f, a, b):
     return ((b - a)/8)*(f(a) + 3*f((2*a+b)/3) + 3*f((a+2*b)/3) + f(b))
-

@@ -1,6 +1,6 @@
 from itertools import chain
-import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+
 
 def cartesian_axes(ax, x_max, y_max, x_min=0, y_min=0, symetric=False):
     ax.set_xlim(x_min, x_max)

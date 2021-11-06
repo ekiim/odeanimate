@@ -1,4 +1,4 @@
-from functools import cache
+from functools import cache, update_wrapper, wraps
 from odeanimate.vector import Vector2D, Vector3D
 from odeanimate.utils import h as _h, dense_range
 from odeanimate.methods.integration import simpson_second_rule
@@ -15,6 +15,7 @@ class Curve:
 
     def set_function(self, function):
         self._function = cache(function)
+        update_wrapper(self, function)
 
     def __call__(self, *args, _func=None, **kwargs):
         if callable(args[0]):
@@ -32,6 +33,7 @@ class Curve:
 class Curve1D(Curve):
     def __init__(self, function=None, **kwargs):
 
+        @wraps(function)
         def _function_wrapper(*args, **kwargs):
             return (function(*args, **kwargs),)
 

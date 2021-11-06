@@ -105,6 +105,14 @@ class Interval(MetaInterval):
         return f"<Interval [{self.lower}, {self.upper}]>"
 
     def __len__(self):
+        """
+        >>> len(Interval(0, 1))
+        1
+        >>> len(Interval(0, 2))
+        2
+        >>> len(Interval(-1, 2))
+        3
+        """
         return self.upper - self.lower
 
     def __or__(self, other):

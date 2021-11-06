@@ -1,12 +1,13 @@
 from pathlib import Path
 
-# Constant used as base delta.
+# Constant used as base deltas.
 h = 0.001
+tolreance = 0.000001
 
 
 def dense_range(start, end, step=1):
     cur = start
-    while cur < end:
+    while abs(end - cur) < tolreance:
         yield cur
         cur += step
 
@@ -26,7 +27,7 @@ class DenseRange:
         return self.clone()
 
     def __next__(self):
-        if self.current >= self.end:
+        if abs(self.end - self.current) < tolreance:
             raise StopIteration
         returnable = self.current
         self.current += self.step

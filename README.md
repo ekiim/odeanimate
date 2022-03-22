@@ -13,7 +13,7 @@ The only external modules that are used _directly_ by this project are:
  - `matplotlib`, which is used to configure the _figures_ for plotting.
  - `ffmpeg-python`, which is used to _gather_ several _figures_ and turn them in to animations.
  - `handout` to turn examples in to html pages.
- - `coverage` and `pytest` to ensure code quality.
+ - `black`, `coverage` and `pytest` to ensure code quality.
 
 
 ## Features

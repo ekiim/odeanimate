@@ -24,15 +24,11 @@ class Vector:
 
     def validation_dimension(self, other):
         if self.dimension != other.dimension:
-            raise Exception(
-                f"Object {self} and {other} not compatible dimensions"
-            )
+            raise Exception(f"Object {self} and {other} not compatible dimensions")
 
     def validation_type(self, other):
         if not isinstance(other, Vector):
-            raise Exception(
-                f"Object {self} and {other} not compatible types"
-            )
+            raise Exception(f"Object {self} and {other} not compatible types")
 
     def euclidean_norm(self):
         return self.norm(p=2)
@@ -191,8 +187,10 @@ class Vector:
     @classmethod
     def curve(cls, func):
         new_func = cls.codomain(func)
+
         def _derivative(t, h=0.001, **kwargs):
             return (new_func(t + h) - new_func(t - h)) / (2 * h)
+
         new_func.derivative = _derivative
         return new_func
 
@@ -230,12 +228,9 @@ class Vector2D(Vector):
 
     @property
     def quadrant(self):
-        return {
-            ("+", "+"): 1,
-            ("+", "-"): 2,
-            ("-", "-"): 3,
-            ("+", "-"): 4,
-        }[self._quadrant_tuple]
+        return {("+", "+"): 1, ("+", "-"): 2, ("-", "-"): 3, ("+", "-"): 4,}[
+            self._quadrant_tuple
+        ]
 
     @property
     def i(self):
@@ -247,7 +242,6 @@ class Vector2D(Vector):
             return vector
         elif isinstance(vector, Vector) and vector.dimension == 2:
             return cls(vector[0], vector[1])
-
 
 
 class Vector3D(Vector):

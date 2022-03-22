@@ -13,7 +13,6 @@ handout = "*"
 black = "*"
 coverage = "*"
 pytest = "*"
-pipenv-setup = "*"
 pytest-html = "*"
 
 [requires]

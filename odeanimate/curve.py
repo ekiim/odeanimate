@@ -39,8 +39,10 @@ class Curve:
     def __add__(self, other):
         _new_func = None
         if isinstance(other, Curve) and self.codomain == other.codomain:
+
             def _new_func(x):
                 return self(x) + other(x)
+
         else:
             raise Exception("Incompatible Sum")
         if _new_func is not None:
@@ -49,7 +51,6 @@ class Curve:
 
 
 class Curve1D(Curve):
-
     def __init__(self, function=None, **kwargs):
         @wraps(function)
         def _function_wrapper(*args, **kwargs):
@@ -58,7 +59,7 @@ class Curve1D(Curve):
         super().__init__(
             codomain=Number, function=_function_wrapper if function else None
         )
-        #self._codomain_class = float
+        # self._codomain_class = float
 
     def integrate(self, a, b, h=_h, integrator=simpson_second_rule):
         _integrator = cache(integrator)
@@ -73,25 +74,32 @@ class Curve1D(Curve):
         """
         _new_func = None
         if isinstance(other, Curve1D):
+
             def _new_func(x):
                 return self(x) + other(x)
+
         elif isinstance(other, Number):
+
             def _new_func(x):
                 return self(x) + other
+
         else:
             return super().__add__(other)
         if _new_func is not None:
             return Curve1D(_new_func)
         raise Exception("Can not resolve function")
-        
 
     def __mul__(self, other):
         if isinstance(other, Curve1D):
+
             def _new_func(x):
-                return self(x)*other(x)
+                return self(x) * other(x)
+
         elif isinstance(other, Number):
+
             def _new_func(x):
-                return self(x)*other
+                return self(x) * other
+
         else:
             raise Exception("Incompatible Mult")
         return Curve1D(function=_new_func)
@@ -104,11 +112,15 @@ class Curve2D(Curve):
     def __add__(self, other):
         _new_func = None
         if isinstance(other, Curve1D):
+
             def _new_func(x):
                 return self(x) + other(x)
+
         elif isinstance(other, Number):
+
             def _new_func(x):
                 return self(x) + other
+
         else:
             raise Exception("Incompatible Sum")
         if _new_func is not None:

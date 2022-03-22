@@ -1,6 +1,8 @@
 from numbers import Number
 from functools import cache, update_wrapper, wraps
+from odeanimate.domains import Interval
 from odeanimate.vector import Vector2D, Vector3D
+from odeanimate.matrix import Matrix
 from odeanimate.utils import h as _h, dense_range, to_list
 from odeanimate.methods.integration import simpson_second_rule
 
@@ -38,10 +40,20 @@ class Curve:
 
     def __add__(self, other):
         _new_func = None
-        if isinstance(other, Curve) and self.codomain == other.codomain:
+        if isinstance(other, self.__class__):
 
             def _new_func(x):
                 return self(x) + other(x)
+
+        elif isinstance(other, Curve) and self.codomain == other.codomain:
+
+            def _new_func(x):
+                return self(x) + other(x)
+
+        elif isinstance(other, self.codomain):
+
+            def _new_func(x):
+                return self(x) + other
 
         else:
             raise Exception("Incompatible Sum")
@@ -49,8 +61,50 @@ class Curve:
             return self.__class__(codomain=self.codomain, function=_new_func)
         raise Exception("Can not resolve function")
 
+    def __mul__(self, other):
+        cls = self.__class__
+        if isinstance(other, Curve1D):
+
+            def _new_func(x):
+                return self(x) * other(x)
+
+        elif isinstance(other, Number):
+
+            def _new_func(x):
+                return self(x) * other
+
+        elif isinstance(other, self.__class__):
+
+            def _new_func(x):
+                return self(x) * other(x)
+            cls = Curve1D
+
+        elif isinstance(other, self.codomain):
+
+            def _new_func(x):
+                return self(x) * other
+
+            cls = Curve1D
+
+        else:
+            raise Exception("Incompatible Mult")
+        return cls(function=_new_func)
+
+    def map(self, interval, h=0.1):
+        if not isinstance(interval,  Interval):
+            raise Exception("Must evaluate at an interval")
+        return Matrix(*[
+            (t, *self(t)) for t in interval(h)
+        ])
+
 
 class Curve1D(Curve):
+    """
+    >>> (Curve1D(lambda x: x**2) + Curve1D(lambda x: -x))(1)
+    0
+    >>> (Curve1D(lambda x: x**2) + 1)(1)
+    2
+    """
     def __init__(self, function=None, **kwargs):
         @wraps(function)
         def _function_wrapper(*args, **kwargs):
@@ -65,70 +119,40 @@ class Curve1D(Curve):
         _integrator = cache(integrator)
         return sum(map(lambda t: _integrator(self, t, t + h), dense_range(a, b, h)))
 
-    def __add__(self, other):
-        """
-        >>> (Curve1D(lambda x: x**2) + Curve1D(lambda x: -x))(1)
-        0
-        >>> (Curve1D(lambda x: x**2) + 1)(1)
-        2
-        """
-        _new_func = None
-        if isinstance(other, Curve1D):
-
-            def _new_func(x):
-                return self(x) + other(x)
-
-        elif isinstance(other, Number):
-
-            def _new_func(x):
-                return self(x) + other
-
-        else:
-            return super().__add__(other)
-        if _new_func is not None:
-            return Curve1D(_new_func)
-        raise Exception("Can not resolve function")
-
-    def __mul__(self, other):
-        if isinstance(other, Curve1D):
-
-            def _new_func(x):
-                return self(x) * other(x)
-
-        elif isinstance(other, Number):
-
-            def _new_func(x):
-                return self(x) * other
-
-        else:
-            raise Exception("Incompatible Mult")
-        return Curve1D(function=_new_func)
 
 
 class Curve2D(Curve):
+    """
+    >>> (Curve2D(lambda x: (x**2, x)) + Curve2D(lambda x: (-x, 1)))(0)
+    Vector2D(0, 1)
+    >>> (Curve2D(lambda x: (x**2, x)) + Vector2D(1, 1))(0)
+    Vector2D(1, 1)
+    >>> (Curve2D(lambda x: (x**2, x)) * 2)(1)
+    Vector2D(2, 2)
+    >>> (Curve2D(lambda x: (x**2, x)) * Curve1D(lambda x: x**2))(1)
+    Vector2D(1, 1)
+    >>> (Curve2D(lambda x: (x**2, x)) * Curve2D(lambda x: (0, 0)))(0)
+    0
+    >>> (Curve2D(lambda x: (x**2, x)) * Curve2D(lambda x: (1, 1)))(1)
+    2
+    >>> (Curve2D(lambda x: (x**2, x)) * Vector2D(1, 0))(1)
+    1
+    """
     def __init__(self, function=None, **kwargs):
         super().__init__(codomain=Vector2D, function=function)
 
-    def __add__(self, other):
-        _new_func = None
-        if isinstance(other, Curve1D):
-
-            def _new_func(x):
-                return self(x) + other(x)
-
-        elif isinstance(other, Number):
-
-            def _new_func(x):
-                return self(x) + other
-
-        else:
-            raise Exception("Incompatible Sum")
-        if _new_func is not None:
-            return Curve1D(_new_func)
-        raise Exception("Can not resolve function")
-
 
 class Curve3D(Curve):
+    """
+    >>> (Curve3D(lambda x: (x**2, x, -x)) + Curve3D(lambda x: (-x, 1, x)))(0)
+    Vector3D(0, 1, 0)
+    >>> (Curve3D(lambda x: (x**2, x, -x)) + Vector3D(1, 1, 1))(0)
+    Vector3D(1, 1, 1)
+    >>> (Curve3D(lambda x: (x**2, x, -x)) * 2)(1)
+    Vector3D(2, 2, -2)
+    >>> (Curve3D(lambda x: (x**2, x, -x)) * Curve1D(lambda x: x**2))(1)
+    Vector3D(1, 1, -1)
+    """
     def __init__(self, function=None, **kwargs):
         super().__init__(codomain=Vector3D, function=function)
 

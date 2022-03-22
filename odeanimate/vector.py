@@ -11,6 +11,8 @@ class Vector:
         Vector(1,)
         >>> Vector(1,2)
         Vector(1, 2)
+        >>> (*Vector(1,2),)
+        (1, 2)
         """
         if isinstance(args[0], self.__class__):
             args = args[0].values

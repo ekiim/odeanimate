@@ -6,7 +6,7 @@ from odeanimate.vector import Vector
 
 
 class Matrix:
-    def __init__(self, *rows, data_type="f", shape=None, **kwargs):
+    def __init__(self, *rows, shape=None, **kwargs):
         rows_count = len(rows)
         column_count = len(rows[0])
         if shape is None:
@@ -15,8 +15,6 @@ class Matrix:
             self._shape = (rows_count, column_count)
         else:
             self._shape = shape
-        self._data_type = data_type
-        # self.array = a.array(data_type)
         self.array = []
         for row in rows:
             self.array.extend(row)
@@ -78,6 +76,10 @@ class Matrix:
         True
         >>> Matrix([1,2,3],[4,5,6],[7,8,9])[0::2,::2] == Matrix([1,3],[7,9])
         True
+        >>> Matrix([1,2,3],[4,5,6],[7,8,9],[1,2,3],[4,5,6],[7,8,9])[:,0]
+        Vector(1, 4, 7, 1, 4, 7)
+        >>> Matrix([1,2,3],[4,5,6],[7,8,9],[1,2,3],[4,5,6],[7,8,9])[:,1]
+        Vector(2, 5, 8, 2, 5, 8)
         """
         if not isinstance(key, tuple):
             key = (key, slice(None))

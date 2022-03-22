@@ -9,6 +9,7 @@ and `&` for _intersection_.
 
 """
 
+import sys
 
 from abc import ABC, abstractmethod
 from functools import reduce
@@ -28,6 +29,19 @@ class MetaInterval(ABC):
     def __hash__(self):
         return hash(("ODEInterval", *[i.limits for i in self._parts]))
 
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __rand__(self, other):
+        return other & self
+
+    def __ror__(self, other):
+        return other | self
+
+    @property
+    def non_disjoint_interval(self):
+        return self._parts
+
 
 class VoidInterval(MetaInterval):
     def __init__(self, *args, **kwargs):
@@ -40,6 +54,12 @@ class VoidInterval(MetaInterval):
         return "<VoidInterval >"
 
     def __contains__(self, other):
+        """
+        >>> 1 in VoidInterval()
+        False
+        >>> VoidInterval() in VoidInterval()
+        True
+        """
         return isinstance(other, self.__class__)
 
     def __bool__(self):
@@ -70,36 +90,52 @@ class VoidInterval(MetaInterval):
             return self
         raise Exception("Can not do intersection")
 
-    @property
-    def non_disjoint_interval(self):
-        return []
-
 
 class Interval(MetaInterval):
     def __init__(self, a, b):
         if a > b:
             raise Exception("Invalid values for an interval")
-        self.upper = b
-        self.lower = a
+        self.upper, self.lower = b, a
         self._parts = [self]
 
     @property
     def limits(self):
         return (self.lower, self.upper)
 
-    @property
-    def non_disjoint_interval(self):
-        return [self]
-
     def __contains__(self, value):
+        """
+        >>> VoidInterval() in Interval(0, 1)
+        True
+        >>> VoidInterval() not in Interval(0, 1)
+        False
+        >>> 1.5 in Interval(1, 2)
+        True
+        >>> 1 in Interval(1, 2)
+        True
+        >>> 2 in Interval(1, 2)
+        True
+        >>> 0 in Interval(1, 2)
+        False
+        >>> 3 in Interval(1, 2)
+        False
+        >>> Interval(1,2) in Interval(0, 2)
+        True
+        >>> Interval(0,2) in Interval(1, 2)
+        False
+        >>> Interval(1,2) in Interval(1, 2)
+        True
+        """
         if isinstance(value, VoidInterval):
             return True
         if isinstance(value, Interval):
             return self.lower <= value.lower <= value.upper <= self.upper
         return self.lower <= value <= self.upper
 
-    def __call__(self, h=_h):
-        return DenseRange(self.lower, self.upper, h)
+    def __call__(self, h=_h, func=None):
+        returnable = DenseRange(self.lower, self.upper, h)
+        if callable(func):
+            returnable.apply(func)
+        return returnable
 
     def __repr__(self):
         return f"<Interval [{self.lower}, {self.upper}]>"
@@ -172,15 +208,37 @@ class Interval(MetaInterval):
 
 
 class DisjointInterval(MetaInterval):
-    def __init__(self, *intervals):
-        self._parts = sorted(
-            set(intervals),
-            key=lambda k: k.limits[0]
-        )
+    @staticmethod
+    def assist(acc, cur):
+        last = acc[-1]
+        # print(acc, last, cur, file=sys.stderr)
+        # print(type(last), type(cur), file=sys.stderr)
+        tmp = last & cur
+        # print(tmp, tmp == VoidInterval(), file=sys.stderr)
+        if tmp in VoidInterval():
+            return [*acc, cur]
+        if isinstance(tmp, Interval):
+            return [*acc[:-1], last | cur]
+        return [VoidInterval()]
 
-    @property
-    def non_disjoint_interval(self):
-        return self._parts
+    def __init__(self, *intervals):
+        """
+        >>> DisjointInterval(Interval(1, 2), Interval(2, 3), Interval(3, 4))
+        <Interval [1, 4]>
+        """
+        # print("Pre:\t", self._parts, file=sys.stderr)
+        self._parts = reduce(
+            self.assist,
+            sorted(set(intervals), key=lambda k: k.limits),
+            [VoidInterval()],
+        )[1:]
+        # print("Post:\t", self._parts, file=sys.stderr)
+        if len(self._parts) == 1:
+            self._cast_to_interval()
+
+    def _cast_to_interval(self):
+        self.__class__ = Interval
+        self.lower, self.upper = self._parts[0].limits
 
     def __repr__(self):
         label = "U".join([str(list(i.limits)) for i in self._parts])
@@ -198,12 +256,6 @@ class DisjointInterval(MetaInterval):
     def __len__(self):
         return sum(map(len, self._parts))
 
-    def __rand__(self, other):
-        return other & self
-
-    def __ror__(self, other):
-        return other | self
-
     def __and__(self, other):
         """
         >>> Interval(1, 2) & Interval(3, 4)
@@ -219,9 +271,9 @@ class DisjointInterval(MetaInterval):
             return VoidInterval()
         elif isinstance(other, Interval):
             return reduce(
-                lambda a, c:  c | a,
+                lambda a, c: c | a,
                 map(lambda i: other & i, self._parts),
-                VoidInterval()
+                VoidInterval(),
             )
         elif isinstance(other, DisjointInterval):
             return reduce(lambda a, c: a & c, other._parts, self)
@@ -238,32 +290,16 @@ class DisjointInterval(MetaInterval):
         <DisjointInterval [1, 2.5]U[3, 4]U[5, 6]>
         >>> (Interval(1, 2) | Interval(3, 4)) | (Interval(2, 2.5) | Interval(5, 6))
         <DisjointInterval [1, 2.5]U[3, 4]U[5, 6]>
+        >>> (Interval(1, 2) | Interval(3, 4) | Interval(2, 2.5) | Interval(1, 6))
+        <Interval [1, 6]>
         """
         if isinstance(other, VoidInterval):
             return self
-        elif isinstance(other, Interval):
-            memberships = list(filter(lambda i: i[1], enumerate((
-                (other.limits[0] in i) or (other.limits[1] in i)
-                for i in self._parts
-            ))))
-            ocurrence = len(memberships)
-            if ocurrence == 2:
-                first, last = [i[0] for i in memberships]
-                A = self._parts[first] | other | self._parts[last]
-                parts = [
-                    *self._parts[:first], A, *self._parts[1+last:]
-                ]
-                return self.__class__(*parts) if len(parts) > 1 else A
-            elif ocurrence == 1:
-                index = memberships[0][0]
-                interval = self._parts[index]
-                A = interval | other
-                if index == 0:
-                    parts = [A, *self._parts[index + 1:] ]
-                else:
-                    parts = [*self._parts[:index], A]
-                return self.__class__(*parts) if len(parts) > 1 else A
-            elif ocurrence == 0:
-                return self.__class__(*self._parts, other)
-        elif isinstance(other, DisjointInterval):
-            return reduce(lambda a, c: a | c, other._parts, self)
+        elif isinstance(other, (Interval, DisjointInterval)):
+            return DisjointInterval(*other._parts, *self._parts)
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(verbose=False)

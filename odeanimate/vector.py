@@ -1,16 +1,21 @@
 import math
+from numbers import Number
 from functools import wraps
 from odeanimate.utils import dense_range
 
 
 class Vector:
     def __init__(self, *args, **kwargs):
+        """
+        >>> Vector(1)
+        Vector(1,)
+        >>> Vector(1,2)
+        Vector(1, 2)
+        """
         if isinstance(args[0], self.__class__):
             args = args[0].values
-        if any((not isinstance(i, (int, float, complex,)) for i in args)):
-            raise Exception(
-                "Error on args, invalid types."
-            )
+        if any((not isinstance(i, Number) for i in args)):
+            raise Exception("Error on args, invalid types.")
         self.dimension = len(args)
         self.values = args
 
@@ -18,24 +23,22 @@ class Vector:
         return self.dimension
 
     def validation_dimension(self, other):
-        if len(self) != len(other):
+        if self.dimension != other.dimension:
             raise Exception(
-                f"Objeto {self} no es de "
-                f"la misma dimension que objeto {other}."
+                f"Object {self} and {other} not compatible dimensions"
             )
 
     def validation_type(self, other):
-        if not isinstance(other, self.__class__):
+        if not isinstance(other, Vector):
             raise Exception(
-                f"Objeto {other} no es del mismo tipo que "
-                f"objeto {self}"
+                f"Object {self} and {other} not compatible types"
             )
 
     def euclidean_norm(self):
         return self.norm(p=2)
 
     def norm(self, p=2):
-        return sum(i**p for i in self.values)**(1.0 / p)
+        return sum(i ** p for i in self.values) ** (1.0 / p)
 
     def dot(self, right):
         """
@@ -44,7 +47,7 @@ class Vector:
         """
         self.validation_type(right)
         self.validation_dimension(right)
-        return sum(i*j for (i, j) in zip(self.values, right.values))
+        return sum(i * j for (i, j) in zip(self.values, right.values))
 
     def __abs__(self):
         """
@@ -66,30 +69,49 @@ class Vector:
         >>> a + b
         Vector(3, 4, 5)
         """
+        if len(self) == 1 and isinstance(right, Number):
+            return Vector(self[0] + right)
         self.validation_type(right)
         self.validation_dimension(right)
         return self.__class__(*[sum(i) for i in zip(self.values, right.values)])
+
+    def __radd__(self, other):
+        return self + other
 
     def __mul__(self, left):
         """
         >>> a, b = Vector(1, 1, 1), Vector(2, 3, 4)
         >>> a*2
         Vector(2, 2, 2)
+        >>> 2*Vector(2)
+        Vector(4,)
+        >>> 0.5*Vector(2)
+        Vector(1.0,)
+        >>> Vector(1, 1, 1) * Vector(1, -1, 0)
+        0
         """
-        if isinstance(left, (int, float, complex)):
-            return self.__class__(*[left*v for v in self.values])
-        raise Exception(
-            f"Can not operate with {type(left).__name__}"
-        )
+        if isinstance(left, Number) or (
+            isinstance(left, self.__class__) and len(left) == 1
+        ):
+            return self.__class__(*[left * v for v in self.values])
+        if isinstance(left, Vector) and self.dimension == left.dimension:
+            return self.dot(left)
+        raise Exception(f"Can not operate with {type(left).__name__}")
 
     def __sub__(self, right):
         return self + (-1) * right
+
+    def __rsub__(self, right):
+        return (-1) * self + right
 
     def __rmul__(self, right):
         """
         >>> a, b = Vector(1, 1, 1), Vector(2, 3, 4)
         >>> 2*a
         Vector(2, 2, 2)
+        >>> a, b = Vector(3), Vector(2)
+        >>> b*a
+        Vector(6,)
         """
         return self * right
 
@@ -98,14 +120,19 @@ class Vector:
         >>> Vector(10, 10, 10) / 10
         Vector(1.0, 1.0, 1.0)
         """
-        return self * (1/left)
+        return self * (1 / left)
+
+    def __rtruediv__(self, other):
+        if len(self) == 1 and isinstance(other, Number):
+            return Vector(other / self[0])
+        raise NotImplemented
 
     def __eq__(self, other):
         returnable = False
         try:
             criteria = [
                 self.dimension == other.dimension,
-                all((i == j for (i, j) in zip(self.values, other.values)))
+                all((i == j for (i, j) in zip(self.values, other.values))),
             ]
             returnable = all(criteria)
         except:
@@ -154,27 +181,19 @@ class Vector:
         >>> parabola(2)
         Vector(2, -5)
         """
+
         @wraps(func)
         def _vector_codomain(*args, **kwargs):
             return cls(*func(*args, **kwargs))
+
         return _vector_codomain
 
     @classmethod
     def curve(cls, func):
-
         new_func = cls.codomain(func)
-
-        def _range_evaluation(start, end, step=1):
-            return VectorCollection(*[
-                new_func(t) for t in dense_range(start, end, step)
-            ])
-        new_func.range = _range_evaluation
-
         def _derivative(t, h=0.001, **kwargs):
-            return (new_func(t + h) - new_func(t - h)) / (2*h)
-
+            return (new_func(t + h) - new_func(t - h)) / (2 * h)
         new_func.derivative = _derivative
-
         return new_func
 
 
@@ -185,14 +204,51 @@ class Vector2D(Vector):
     def __str__(self):
         return f"Vector2D{self.values}"
 
+    @property
     def x(self):
         return self.values[0]
 
+    @property
     def y(self):
         return self.values[-1]
 
+    @property
+    def angle(self):
+        if self.y == self.x == 0:
+            return 0
+        try:
+            return math.atan(self.y / self.x)
+        except ZeroDivisionError:
+            return 1
+
+    @property
+    def _quadrant_tuple(self):
+        return (
+            "+" if self.x >= 0 else "-",
+            "+" if self.y >= 0 else "-",
+        )
+
+    @property
+    def quadrant(self):
+        return {
+            ("+", "+"): 1,
+            ("+", "-"): 2,
+            ("-", "-"): 3,
+            ("+", "-"): 4,
+        }[self._quadrant_tuple]
+
+    @property
     def i(self):
-        return Vector2D(-1*self.y, self.x)
+        return Vector2D(-1 * self.y, self.x)
+
+    @classmethod
+    def from_vector(cls, vector):
+        if isinstance(vector, cls):
+            return vector
+        elif isinstance(vector, Vector) and vector.dimension == 2:
+            return cls(vector[0], vector[1])
+
+
 
 class Vector3D(Vector):
     def __init__(self, x, y, z, **kwargs):
@@ -212,44 +268,13 @@ class Vector3D(Vector):
 
     def cross(self, other):
         return self.__class__(
-            (self.y*other.z - self.z*other.y),
-            -(self.x*other.z - self.z*other.x),
-            (self.x*other.y - self.y*other.x),
+            (self.y * other.z - self.z * other.y),
+            -(self.x * other.z - self.z * other.x),
+            (self.x * other.y - self.y * other.x),
         )
 
-class VectorCollection:
-    def __init__(self, *args, **kwargs):
-        if len(args) == 0:
-            raise Exception("Empty collection")
-        if not all(isinstance(a, Vector) for a in args):
-            raise Exception("This are not vectors")
-        if not all(len(args[0]) == len(a) for a in args):
-            raise Exception("Different dimension vectors")
-        self.collection = list(args)
-        self.count = len(args)
-        self.dimension = len(args[0])
 
-    def __len__(self):
-        return self.count
-
-    def __getitem__(self, _slice):
-        returnable = self.collection[_slice]
-        if isinstance(returnable, list):
-            returnable = VectorCollection(*returnable)
-        return returnable
-
-    def __iter__(self):
-        return iter(self.collection)
-
-    def components(self, *comp):
-        if len(comp) == 0:
-            comp = list(range(self.dimension))
-        return [
-            [float(vec[i]) for vec in self.collection]
-            for i in comp
-        ]
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod(verbose=False)

@@ -5,7 +5,7 @@ from odeanimate.curve import Curve1D
 
 @Curve1D
 def x_inverse(x):
-    return 1/x
+    return 1 / x
 
 
 @Curve1D

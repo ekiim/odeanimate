@@ -6,8 +6,22 @@ name = "pypi"
 [packages]
 matplotlib = "*"
 ffmpeg-python = "*"
+schemdraw = {extras = ["matplotlib"], version = "*"}
+handout = "*"
 
 [dev-packages]
+black = "*"
+coverage = "*"
+pytest = "*"
+pipenv-setup = "*"
+pytest-html = "*"
 
 [requires]
 python_version = "3.9"
+
+[scripts]
+lint = "./scripts/lint.sh"
+tests = "./scripts/tests.sh"
+docs = "./scripts/build_docs.sh"
+serve = "python -m http.server --directory docs"
+clean = "rm -rf docs/tests/coverage html"

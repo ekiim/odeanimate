@@ -54,13 +54,6 @@ class Vector:
         """
         return self.euclidean_norm()
 
-    def __matmul__(self, right):
-        """
-        >>> Vector(1, 2, 3) @ Vector(1, 2, 3)
-        14
-        """
-        return self.dot(right)
-
     def __add__(self, right):
         """
         >>> a, b = Vector(1, 1, 1), Vector(2, 3, 4)
@@ -87,6 +80,8 @@ class Vector:
         Vector(1.0,)
         >>> Vector(1, 1, 1) * Vector(1, -1, 0)
         0
+        >>> Vector(1, 2, 3) * Vector(1, 2, 3)
+        14
         """
         if isinstance(left, Number) or (
             isinstance(left, self.__class__) and len(left) == 1
@@ -238,6 +233,10 @@ class Vector2D(Vector):
     def i(self):
         return Vector2D(-1 * self.y, self.x)
 
+    @property
+    def J(self):
+        return self.i
+
     @classmethod
     def from_vector(cls, vector):
         if isinstance(vector, cls):
@@ -253,12 +252,35 @@ class Vector3D(Vector):
     def __str__(self):
         return f"Vector3D{self.values}"
 
+    def __matmul__(self, other):
+        """
+        >>> Vector3D(1, 1, 1) @ Vector3D(1, 1, 1)
+        Vector3D(0, 0, 0)
+        >>> Vector3D(1, 1, 1) @ Vector3D(1, 0, 1)
+        Vector3D(1, 0, -1)
+        >>> Vector3D(1, 1, 1) @ Vector3D(1, -1, 1)
+        Vector3D(2, 0, -2)
+        >>> Vector3D(1, 1, 0) @ Vector3D(1, -1, 1)
+        Vector3D(1, -1, -2)
+        """
+        if not isinstance(self, Vector3D):
+            raise Exception("Can not perform cross product")
+        s, o = self, other
+        return Vector3D(
+            s.y*o.z - s.z*o.y,
+           -s.x*o.z + s.z*o.x,
+            s.x*o.y - s.y*o.x,
+        )
+
+    @property
     def x(self):
         return self.values[0]
 
+    @property
     def y(self):
         return self.values[1]
 
+    @property
     def z(self):
         return self.values[2]
 
@@ -268,6 +290,13 @@ class Vector3D(Vector):
             -(self.x * other.z - self.z * other.x),
             (self.x * other.y - self.y * other.x),
         )
+
+    @classmethod
+    def from_vector(cls, vector):
+        if isinstance(vector, cls):
+            return vector
+        elif isinstance(vector, Vector) and vector.dimension == 2:
+            return cls(vector[0], vector[1], vector[2])
 
 
 if __name__ == "__main__":

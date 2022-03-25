@@ -1,5 +1,5 @@
 import math
-from odeanimate.vector import Vector2D
+from odeanimate.vector import Vector2D, Vector3D
 
 
 def vector_2d_single(ax, vector, base=Vector2D(0, 0), label=None, **kwargs):
@@ -41,4 +41,13 @@ def vector_2d_tails(ax, *vectors, labels=None, **kwargs):
         except:
             label = None
         vector_2d_single(ax, cur, initial, label=label)
+    return ax
+
+def vector_3d_single(ax, vector, base=Vector3D(0, 0, 0), label=None, **kwargs):
+    vector = Vector3D.from_vector(vector)
+    base = Vector3D.from_vector(base)
+    ax.quiver(
+        [base.x], [base.y], [base.z],
+        [vector.x], [vector.y], [vector.z],
+    )
     return ax

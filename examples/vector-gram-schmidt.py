@@ -7,7 +7,7 @@ def GramSchmidtOrthoNormalize(*non):
     orth = []
     for (i, cur) in enumerate(non, start=0):
         x = cur - sum(
-            [((cur @ other) / abs(other) ** 2) * other for other in orth[:i]],
+            [((cur * other) / abs(other) ** 2) * other for other in orth[:i]],
             start=Vector(0, 0, 0),
         )
         orth.append(x / abs(x))

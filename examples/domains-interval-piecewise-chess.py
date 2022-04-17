@@ -17,7 +17,7 @@ def pawn(x):
         # return (1/2) + ((1/2 - 1/3)/(neck.lower - neck.upper))*(x - 2)
     elif x in Interval(3, 4):
         r, h, k = 1 / 2, 3, 1 / 3
-        return (r ** 2 - (x - h - r) ** 2) ** (1 / 2) + k
+        return (r**2 - (x - h - r) ** 2) ** (1 / 2) + k
     return 0
 
 

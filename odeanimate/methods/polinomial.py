@@ -8,7 +8,7 @@ class Polinomial(Curve1D):
         self.coefs = tuple(coefs)
 
         def _evaluation_function(x):
-            return sum((a * (x ** i) for i, a in enumerate(self.coefs)))
+            return sum((a * (x**i) for i, a in enumerate(self.coefs)))
 
         super().__init__(function=_evaluation_function)
 
@@ -37,7 +37,8 @@ class Polinomial(Curve1D):
             new_point_values = [
                 (x, y1 + y2)
                 for (x, y1), (_, y2) in zip(
-                    self.point_values(roots), other.point_values(roots),
+                    self.point_values(roots),
+                    other.point_values(roots),
                 )
             ]
             pass

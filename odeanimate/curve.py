@@ -70,6 +70,7 @@ class Curve:
 
             def _new_func(x):
                 return self(x) * other(x)
+
             cls = Curve1D
 
         elif isinstance(other, self.codomain):
@@ -92,11 +93,15 @@ class Curve:
         """
         _new_func = None
         if isinstance(other, Curve1D):
+
             def _new_func(x):
                 return self(x) / other(x)
+
         elif isinstance(other, Number):
+
             def _new_func(x):
                 return self(x) / other
+
         if _new_func is not None:
             return self.__class__(function=_new_func, codomain=self.codomain)
         raise Exception("Can not perform division with non scalar")
@@ -110,20 +115,18 @@ class Curve:
         >>> abs(Curve3D(lambda x: (x-3, x-4, x)))(0)
         5.0
         """
+
         def _new_func(x):
             return abs(self(x))
+
         return Curve1D(function=_new_func)
 
     def map(self, interval, h=0.1):
-        if not isinstance(interval,  Interval):
+        if not isinstance(interval, Interval):
             raise Exception("Must evaluate at an interval")
         if self.codomain == Number:
-            return Matrix(*[
-                (t, self(t)) for t in interval(h)
-            ])
-        return Matrix(*[
-            (t, *self(t)) for t in interval(h)
-        ])
+            return Matrix(*[(t, self(t)) for t in interval(h)])
+        return Matrix(*[(t, *self(t)) for t in interval(h)])
 
     def derivative(self, h=_h):
         def _derivative(t):
@@ -152,7 +155,7 @@ class Curve:
         return abs(self.tangent().derivative())
 
     def evolute(self):
-        return self + self.normal()/self.curvature()
+        return self + self.normal() / self.curvature()
 
 
 class Curve1D(Curve):
@@ -162,6 +165,7 @@ class Curve1D(Curve):
     >>> (Curve1D(lambda x: x**2) + 1)(1)
     2
     """
+
     def __init__(self, function=None, **kwargs):
         @wraps(function)
         def _function_wrapper(*args, **kwargs):
@@ -182,14 +186,16 @@ class Curve1D(Curve):
         """
         _new_func = None
         if isinstance(other, Number):
+
             def _new_func(x):
                 return other / self(x)
+
         if _new_func is not None:
             return Curve1D(function=_new_func)
         raise TypeError("Can not perform division with non scalar")
 
     def __pow__(self, other):
-        return Curve1D(function=lambda t: self(t)**other)
+        return Curve1D(function=lambda t: self(t) ** other)
 
 
 class Curve2D(Curve):
@@ -209,6 +215,7 @@ class Curve2D(Curve):
     >>> (Curve2D(lambda x: (x**2, x)) * Vector2D(1, 0))(1)
     1
     """
+
     def __init__(self, function=None, **kwargs):
         super().__init__(codomain=Vector2D, function=function)
 
@@ -222,8 +229,7 @@ class Curve2D(Curve):
     def curvature(self):
         d = self.derivative()
         dd = d.derivative()
-        return  abs(d*dd.J) / abs(d)**3 
-
+        return abs(d * dd.J) / abs(d) ** 3
 
 
 class Curve3D(Curve):
@@ -237,17 +243,22 @@ class Curve3D(Curve):
     >>> (Curve3D(lambda x: (x**2, x, -x)) * Curve1D(lambda x: x**2))(1)
     Vector3D(1, 1, -1)
     """
+
     def __init__(self, function=None, **kwargs):
         super().__init__(codomain=Vector3D, function=function)
 
     def __matmul__(self, other):
         _new_func = None
         if isinstance(other, Curve3D):
+
             def _new_func(t):
                 return self(t) @ other(t)
+
         elif isinstance(other, Vector3D):
+
             def _new_func(t):
                 return self(t) @ other
+
         if _new_func is not None:
             return self.__class__(function=_new_func, codomain=self.codomain)
         raise Exception("Can not do cross product with this function")

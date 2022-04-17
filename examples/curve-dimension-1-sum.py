@@ -11,16 +11,16 @@ if __name__ == "__main__":
     interval = Interval(-10, 10)
     b, w = 0.5, 1
     functions = [
-        f := Curve1D(function=lambda x: e**(-b*x)),
-        g := Curve1D(function=lambda x: cos(w*x)),
+        f := Curve1D(function=lambda x: e ** (-b * x)),
+        g := Curve1D(function=lambda x: cos(w * x)),
         f + g,
         g + 2,
     ]
     rows = 3
     cols = 2
     axes = [
-        cartesian_axes(fig.add_subplot(rows, cols, i+1), interval)
-        for i in range(rows*cols)
+        cartesian_axes(fig.add_subplot(rows, cols, i + 1), interval)
+        for i in range(rows * cols)
     ]
     for func, ax in zip(functions, axes):
         ax.plot(list(interval), list(map(func, interval)))

@@ -15,4 +15,3 @@ if __name__ == "__main__":
     ax.plot(list(interval), list(map(g, interval)))
     image_file = output_file(__file__, ".png")
     fig.savefig(image_file)
-    

@@ -36,7 +36,7 @@ class Vector:
         return self.norm(p=2)
 
     def norm(self, p=2):
-        return sum(i ** p for i in self.values) ** (1.0 / p)
+        return sum(i**p for i in self.values) ** (1.0 / p)
 
     def dot(self, right):
         """
@@ -225,9 +225,12 @@ class Vector2D(Vector):
 
     @property
     def quadrant(self):
-        return {("+", "+"): 1, ("+", "-"): 2, ("-", "-"): 3, ("+", "-"): 4,}[
-            self._quadrant_tuple
-        ]
+        return {
+            ("+", "+"): 1,
+            ("+", "-"): 2,
+            ("-", "-"): 3,
+            ("+", "-"): 4,
+        }[self._quadrant_tuple]
 
     @property
     def i(self):
@@ -267,9 +270,9 @@ class Vector3D(Vector):
             raise Exception("Can not perform cross product")
         s, o = self, other
         return Vector3D(
-            s.y*o.z - s.z*o.y,
-           -s.x*o.z + s.z*o.x,
-            s.x*o.y - s.y*o.x,
+            s.y * o.z - s.z * o.y,
+            -s.x * o.z + s.z * o.x,
+            s.x * o.y - s.y * o.x,
         )
 
     @property

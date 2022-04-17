@@ -1,2 +1,3 @@
 #!/bin/sh
-black ./odeanimate ./examples
+[[ "$1" == "CI" ]] && CI_CHECK="--check"
+black ./odeanimate ./examples ${CI_CHECK} || exit 1

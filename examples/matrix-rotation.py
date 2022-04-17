@@ -14,19 +14,19 @@ if __name__ == "__main__":
     b = Vector2D(2, -2)
     rows, cols = 3, 3
     functions = [
-        Matrix([1,0], [0, 1]),
-        Matrix([2,0], [0, 2]),
-        Matrix([0.5,0], [0, 0.5]),
-        Matrix.Rotation2D(pi/2),
+        Matrix([1, 0], [0, 1]),
+        Matrix([2, 0], [0, 2]),
+        Matrix([0.5, 0], [0, 0.5]),
+        Matrix.Rotation2D(pi / 2),
         Matrix.Rotation2D(pi),
-        Matrix.Rotation2D(3*pi/2),
-        Matrix([0,-1], [-1, 1]),
-        0.5*Matrix([1,1], [1, 2]),
-        Matrix([0.5,0], [0, 0.5]),
+        Matrix.Rotation2D(3 * pi / 2),
+        Matrix([0, -1], [-1, 1]),
+        0.5 * Matrix([1, 1], [1, 2]),
+        Matrix([0.5, 0], [0, 0.5]),
     ]
     axes = [
-        cartesian_axes(fig.add_subplot(rows, cols, i+1), interval)
-        for i in range(rows*cols)
+        cartesian_axes(fig.add_subplot(rows, cols, i + 1), interval)
+        for i in range(rows * cols)
     ]
     for func, ax in zip(functions, axes):
         _a = func(a)

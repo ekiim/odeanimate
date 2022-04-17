@@ -14,13 +14,13 @@ if __name__ == "__main__":
         g := Polinomial(-1, 3, -3, 1),
         f * 2,
         f * g,
-        h := Curve1D(function=lambda x: -0.2*e**x),
-        f * h
+        h := Curve1D(function=lambda x: -0.2 * e**x),
+        f * h,
     ]
     rows, cols = 3, 2
     axes = [
-        cartesian_axes(fig.add_subplot(rows, cols, i+1), interval)
-        for i in range(rows*cols)
+        cartesian_axes(fig.add_subplot(rows, cols, i + 1), interval)
+        for i in range(rows * cols)
     ]
     for func, ax in zip(functions, axes):
         if isinstance(func, Polinomial):
@@ -30,4 +30,3 @@ if __name__ == "__main__":
         ax.plot(list(interval), list(map(func, interval)))
     image_file = output_file(__file__, ".png")
     fig.savefig(image_file)
-

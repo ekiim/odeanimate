@@ -1,0 +1,44 @@
+kind: pipeline
+type: docker
+name: Default
+trigger:
+  event:
+  - pull_request
+
+steps:
+- name: Build Docker Image
+  image: docker
+  volumes:
+  - name: dockersock
+    path: /var/run/docker.sock
+  commands:
+  - docker build -t odeanimate:drone-${DRONE_COMMIT} .
+
+- name: Lint
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+    - bash ./scripts/lint.sh CI
+  depends_on:
+    - Build Docker Image
+
+- name: Test
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+    - bash ./scripts/tests.sh
+  depends_on:
+    - Build Docker Image
+
+- name: Code Verification
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+    - echo "Code Verification Complete"
+  depends_on:
+    - Lint
+    - Test
+
+
+
+volumes:
+- name: dockersock
+  host:
+    path: /var/run/docker.sock

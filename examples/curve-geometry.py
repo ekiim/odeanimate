@@ -6,6 +6,7 @@ from odeanimate.plots.vectors import vector_3d_single
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
 
+
 @Curve3D
 def func(t):
     return (
@@ -13,6 +14,7 @@ def func(t):
         2 * sin(2 * pi * t) * cos(2 * pi * t),
         4 * sin(2 * pi * t),
     )
+
 
 if __name__ == "__main__":
     fig = plt.figure(figsize=(8, 8))
@@ -22,8 +24,8 @@ if __name__ == "__main__":
     interval, h = Interval(-4, 4), 1e-2
 
     trayectory = func.map(interval, h)
-    T = trayectory[:,0]
-    cords = [trayectory[:,1], trayectory[:,2], trayectory[:,3]]
+    T = trayectory[:, 0]
+    cords = [trayectory[:, 1], trayectory[:, 2], trayectory[:, 3]]
 
     tangent = func.tangent()
     normal = func.normal()
@@ -36,8 +38,5 @@ if __name__ == "__main__":
     vector_3d_single(ax3d, normal(t), func(t))
     vector_3d_single(ax3d, binormal(t), func(t))
 
-
     image_file = output_file(__file__, ".png")
     fig.savefig(image_file)
-    
-

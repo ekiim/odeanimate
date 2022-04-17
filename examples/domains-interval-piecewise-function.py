@@ -6,7 +6,7 @@ from odeanimate.plots.axes import cartesian_axes
 
 def piecewise(x):
     if x in Interval(-1, 1):
-        return x ** 2
+        return x**2
     return abs(x)
 
 

@@ -25,12 +25,12 @@ class Matrix:
         return self._shape
 
     def __repr__(self):
-        """ 
-        >>> Matrix((1,), shape=(1,1)) 
+        """
+        >>> Matrix((1,), shape=(1,1))
         <Matrix shape=(1, 1) rows=(Vector(1,))>
-        >>> Matrix((1,2), shape=(1, 2)) 
+        >>> Matrix((1,2), shape=(1, 2))
         <Matrix shape=(1, 2) rows=(Vector(1, 2))>
-        >>> Matrix((1,2), shape=(2, 1)) 
+        >>> Matrix((1,2), shape=(2, 1))
         <Matrix shape=(2, 1) rows=(Vector(1,), Vector(2,))>
         """
         rows = ", ".join([repr(self[i]) for i in range(0, self.shape[0])])
@@ -120,9 +120,9 @@ class Matrix:
 
     def __mul__(self, other):
         """
-        >>> Matrix([1, 0], [0, 1]) * Matrix([0, 1], [1, 0]) ==  Matrix([0, 1], [1, 0]) 
+        >>> Matrix([1, 0], [0, 1]) * Matrix([0, 1], [1, 0]) ==  Matrix([0, 1], [1, 0])
         True
-        >>> Matrix([1, 2]) * Matrix([0, 1], [1, 0]) ==  Matrix([2, 1]) 
+        >>> Matrix([1, 2]) * Matrix([0, 1], [1, 0]) ==  Matrix([2, 1])
         True
         >>> Matrix([1, 0], [0, 1]) * Vector(2, 2)
         Vector(2, 2)
@@ -135,7 +135,9 @@ class Matrix:
                 [a.dot(b) for a in self.rows for b in other.columns], shape=new_shape
             )
         if isinstance(other, Vector) and self.shape[1] == other.dimension:
-            return Vector(*[other.dot(a) for a in self.rows],)
+            return Vector(
+                *[other.dot(a) for a in self.rows],
+            )
         if isinstance(other, Number):
             return Matrix([x * other for x in self.array], shape=self.shape)
         raise Exception(f"Unsoported Operation betwee Matrix and {other.__class__}")

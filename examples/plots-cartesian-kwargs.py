@@ -5,7 +5,7 @@ from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
 
 r = 2.5
-circ_func = lambda x: (r ** 2 - x ** 2) ** (1 / 2)
+circ_func = lambda x: (r**2 - x**2) ** (1 / 2)
 x_plot = list(Interval(-r, r))
 y_plot = [circ_func(x) for x in x_plot]
 x_points = [0, 1, 1, -1, -1, 2, 2, -2, -2]

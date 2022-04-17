@@ -43,7 +43,7 @@ def generic(x, y):
 @Vector.codomain
 def second(x, y):
     r"""$y^\prime = xy + y^2$"""
-    return ((x * y + y ** 2),)
+    return ((x * y + y**2),)
 
 
 cases = [

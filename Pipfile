@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 matplotlib = "*"
 ffmpeg-python = "*"
-schemdraw = {extras = ["matplotlib"], version = "*"}
 handout = "*"
 
 [dev-packages]

@@ -28,7 +28,11 @@ def plot_isocline(ax, func, x_interval, y_interval, x_step=0.5, y_step=0.5, **kw
         ]
         for y in y_interval(y_step)
     ]
-    quiver_kwargs = dict(headwidth=0, minlength=0, alpha=0.05,)
+    quiver_kwargs = dict(
+        headwidth=0,
+        minlength=0,
+        alpha=0.05,
+    )
     quiver_kwargs = {**quiver_kwargs, **kwargs}
     for piv in ["tail", "mid", "tip"]:
         ax.quiver(xv, yv, u, v, pivot=piv, **quiver_kwargs)

@@ -8,7 +8,10 @@ from odeanimate.plots.axes import cartesian_axes
 
 def domain_fallback(interval):
     delta = len(interval) / 3
-    return Interval(interval.limits[0] - delta, interval.limits[1] + 2 * delta,)
+    return Interval(
+        interval.limits[0] - delta,
+        interval.limits[1] + 2 * delta,
+    )
 
 
 def riemann_sum(ax, f, interval, n, domain=None, variant="left", rectangle_color="g"):
@@ -35,7 +38,11 @@ def riemann_sum(ax, f, interval, n, domain=None, variant="left", rectangle_color
 
     for x in interval.limits:
         ax.plot(
-            [x, x], [0, f(x)], linestyle="--", c="r", linewidth=2,
+            [x, x],
+            [0, f(x)],
+            linestyle="--",
+            c="r",
+            linewidth=2,
         )
     return ax, area
 

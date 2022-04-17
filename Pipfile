@@ -9,10 +9,11 @@ ffmpeg-python = "*"
 handout = "*"
 
 [dev-packages]
-black = "*"
+black = {extras = ["jupyter"], version = "*"}
 coverage = "*"
 pytest = "*"
 pytest-html = "*"
+install = "*"
 
 [requires]
 python_version = "3.9"

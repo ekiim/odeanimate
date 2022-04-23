@@ -13,6 +13,10 @@ class Vector:
         Vector(1, 2)
         >>> (*Vector(1,2),)
         (1, 2)
+        >>> Vector(1, "2")
+        Traceback (most recent call last):
+          ...
+        Exception: Error on args, invalid types.
         """
         if isinstance(args[0], self.__class__):
             args = args[0].values
@@ -25,10 +29,22 @@ class Vector:
         return self.dimension
 
     def validation_dimension(self, other):
+        """
+        >>> Vector(1, 2).validation_dimension(Vector(1, 2, 3))
+        Traceback (most recent call last):
+          ...
+        Exception: Object Vector(1, 2) and Vector(1, 2, 3) not compatible dimensions
+        """
         if self.dimension != other.dimension:
             raise Exception(f"Object {self} and {other} not compatible dimensions")
 
     def validation_type(self, other):
+        """
+        >>> Vector(1, 2).validation_type("STRING")
+        Traceback (most recent call last):
+          ...
+        Exception: Object Vector(1, 2) and STRING not compatible types
+        """
         if not isinstance(other, Vector):
             raise Exception(f"Object {self} and {other} not compatible types")
 
@@ -61,6 +77,8 @@ class Vector:
         Vector(3, 4, 5)
         >>> Vector(1, 2, 3, 4) + Vector(4, 3, 2, 1)
         Vector(5, 5, 5, 5)
+        >>> Vector(1) + 1
+        Vector(2,)
         """
         if len(self) == 1 and isinstance(right, Number):
             return Vector(self[0] + right)

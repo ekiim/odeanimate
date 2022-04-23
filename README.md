@@ -32,8 +32,12 @@ The only external modules that are used _directly_ by this project are:
 
 In order to work with this project, perform all executions using [`pipenv`](https://pipenv.pypa.io/en/latest/).
 
- - Install the project `pipenv install` (do it when ever you update the `Pipfile` at least).
+ - Install the project `pipenv install --dev`
+    - (do it when ever you update the `Pipfile` at least).
  - `pipenv run python` will run `python` with the configuration required to use this project.
  - `pipenv run <script-name>`, will execute `script.<script-name>` from the `Pipfile`.
+ - `pipenv run lint` should run the code linter.
+ - `pipenv run tests` should run the test suit, and generate you html explorable files in the `docs` directory.
+ - `pipenv run jupyter lab` should run you a jupyter instance to work on top of the project.
 
 

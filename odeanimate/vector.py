@@ -59,6 +59,8 @@ class Vector:
         >>> a, b = Vector(1, 1, 1), Vector(2, 3, 4)
         >>> a + b
         Vector(3, 4, 5)
+        >>> Vector(1, 2, 3, 4) + Vector(4, 3, 2, 1)
+        Vector(5, 5, 5, 5)
         """
         if len(self) == 1 and isinstance(right, Number):
             return Vector(self[0] + right)

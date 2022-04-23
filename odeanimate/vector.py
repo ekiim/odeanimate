@@ -84,6 +84,8 @@ class Vector:
         0
         >>> Vector(1, 2, 3) * Vector(1, 2, 3)
         14
+        >>> Vector(1, 2, 3, 4)*3
+        Vector(3, 6, 9, 12)
         """
         if isinstance(left, Number) or (
             isinstance(left, self.__class__) and len(left) == 1

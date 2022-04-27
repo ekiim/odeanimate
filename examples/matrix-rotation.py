@@ -1,6 +1,6 @@
 from math import pi
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from odeanimate.utils import output_file
 from odeanimate.domains import Interval
 from odeanimate.vector import Vector2D
 from odeanimate.matrix import Matrix

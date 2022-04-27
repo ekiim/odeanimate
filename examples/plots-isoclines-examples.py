@@ -1,15 +1,16 @@
 from math import sqrt, e
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from matplotlib import rc
+from odeanimate.utils import output_file
 from odeanimate.domains import Interval
 from odeanimate.plots.ode import plot_isocline
 from odeanimate.plots.axes import cartesian_axes
 from odeanimate.vector import Vector
-from odeanimate.methods.ode import integrate, runge_kutta_4
 
-import matplotlib.pyplot as plt
+# from odeanimate.methods.ode import integrate, runge_kutta_4
 
-plt.rcParams["text.usetex"] = True
+
+rc("text", usetex=False)
 
 
 def tex_wrap(text):

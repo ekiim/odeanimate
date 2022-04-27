@@ -1,10 +1,10 @@
 from math import sin, cos, pi
 import matplotlib.pyplot as plt
-from examples.output import output_file
 from odeanimate.curve import Curve3D
 from odeanimate.plots.vectors import vector_3d_single
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
+from odeanimate.utils import output_file
 
 
 @Curve3D

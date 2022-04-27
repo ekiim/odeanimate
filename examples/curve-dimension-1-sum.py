@@ -1,9 +1,9 @@
 from math import e, cos
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from odeanimate.curve import Curve1D
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
-from odeanimate.curve import Curve1D
+from odeanimate.utils import output_file
 
 
 if __name__ == "__main__":
@@ -16,8 +16,7 @@ if __name__ == "__main__":
         f + g,
         g + 2,
     ]
-    rows = 3
-    cols = 2
+    rows, cols = 3, 2
     axes = [
         cartesian_axes(fig.add_subplot(rows, cols, i + 1), interval)
         for i in range(rows * cols)

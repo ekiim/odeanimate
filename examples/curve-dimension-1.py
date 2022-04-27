@@ -1,4 +1,4 @@
-from math import cos, exp
+from math import exp
 from sys import stderr
 from odeanimate.curve import Curve1D
 

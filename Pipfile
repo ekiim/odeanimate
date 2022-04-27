@@ -4,24 +4,28 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-matplotlib = "*"
-ffmpeg-python = "*"
-handout = "*"
+odeanimate = {editable = true, path = "."}
 
 [dev-packages]
 black = {extras = ["jupyter"], version = "*"}
 coverage = "*"
-pytest = "*"
-pytest-html = "*"
+ffmpeg-python = "*"
+handout = "*"
 install = "*"
 jupyterlab = "*"
+matplotlib = "*"
+pylint = "*"
+pytest = "*"
+pytest-html = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3.9"
 
 [scripts]
-lint = "./scripts/lint.sh"
-tests = "./scripts/tests.sh"
+clean = "rm -rf html"
 docs = "./scripts/build_docs.sh"
+examples = "./scripts/examples.sh"
+lint = "./scripts/lint.sh"
 serve = "python -m http.server --directory docs"
-clean = "rm -rf docs/tests/coverage html"
+tests = "./scripts/tests.sh"

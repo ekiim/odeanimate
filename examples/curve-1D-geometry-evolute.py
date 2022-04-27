@@ -1,6 +1,6 @@
 from math import sin, cos, pi
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from odeanimate.utils import output_file
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
 from odeanimate.plots.vectors import vector_2d_single
@@ -32,6 +32,7 @@ if __name__ == "__main__":
     rows, cols = 1, 1
 
     t = 0.1
+    s = step
 
     t = t_interval.limits[0] + s * sum(t_interval.limits)
     ax = cartesian_axes(fig.add_subplot(rows, cols, 1), x_interval)

@@ -1,6 +1,6 @@
 from math import e
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from odeanimate.utils import output_file
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
 from odeanimate.methods.polinomial import Polinomial, Curve1D

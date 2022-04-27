@@ -1,14 +1,15 @@
 from math import sqrt, e
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from matplotlib import rc
+from odeanimate.utils import output_file
 from odeanimate.domains import Interval
 from odeanimate.plots.ode import plot_isocline
 from odeanimate.plots.axes import cartesian_axes
 from odeanimate.vector import Vector
-from odeanimate.methods.ode import integrate, runge_kutta_4
-import matplotlib.pyplot as plt
 
-plt.rcParams["text.usetex"] = True
+# from odeanimate.methods.ode import integrate, runge_kutta_4
+
+rc("text", usetex=False)
 
 
 @Vector.codomain
@@ -46,9 +47,9 @@ def parabolas(x, c=1):
 
 cases = [
     (parabolas_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, parabolas, "parabolas"),
-    (parabolas_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, elipses, "parabolas-elipses"),
-    (elipses_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, elipses, "elipses"),
-    (elipses_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, parabolas, "elipses-parabolas"),
+    # (parabolas_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, elipses, "parabolas-elipses"),
+    # (elipses_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, elipses, "elipses"),
+    # (elipses_edo, (-5, 5), 0.5, (-5, 5), -10, 0.01, parabolas, "elipses-parabolas"),
 ]
 
 

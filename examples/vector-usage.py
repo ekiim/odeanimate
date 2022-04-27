@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from odeanimate.vector import Vector
-from examples.output import output_file
+from odeanimate.utils import output_file
 
 
 if __name__ == "__main__":

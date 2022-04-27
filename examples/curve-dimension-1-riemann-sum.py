@@ -2,7 +2,7 @@ from math import sin
 from odeanimate.domains import Interval
 from odeanimate.curve import Curve1D
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from odeanimate.utils import output_file
 
 
 @Curve1D

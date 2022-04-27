@@ -28,11 +28,19 @@ steps:
   depends_on:
     - Build Docker Image
 
+- name: Examples
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+    - bash ./scripts/examples.sh
+  depends_on:
+    - Build Docker Image
+
 - name: Code Verification
   image: odeanimate:drone-${DRONE_COMMIT}
   commands:
     - echo "Code Verification Complete"
   depends_on:
+    - Examples
     - Lint
     - Test
 

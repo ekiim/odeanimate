@@ -1,12 +1,11 @@
 from math import sin, cos
-import array as a
 from numbers import Number
 from odeanimate.utils import slice_to_range, tolerance
 from odeanimate.vector import Vector
 
 
 class Matrix:
-    def __init__(self, *rows, shape=None, **kwargs):
+    def __init__(self, *rows, shape=None, **kwargs):  # pylint: disable=W0613
         rows_count = len(rows)
         column_count = len(rows[0])
         if shape is None:
@@ -149,7 +148,7 @@ class Matrix:
         """
         if isinstance(other, Number):
             return self * other
-        raise NotImplemented
+        raise NotImplementedError
 
     def __call__(self, x):
         return self * x

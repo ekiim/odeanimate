@@ -1,6 +1,6 @@
 from math import sin, cos, pi
 import matplotlib.pyplot as plt
-from examples.output import output_file
+from odeanimate.utils import output_file
 from odeanimate.vector import Vector
 
 

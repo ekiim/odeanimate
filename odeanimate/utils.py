@@ -1,10 +1,19 @@
 from math import pi, sin, cos
-import sys
 from array import array
 from pathlib import Path
-from itertools import chain, repeat, product
 from functools import reduce, lru_cache
 import operator
+
+
+# Specific values for the project, in order to build the assets directory.
+_project_root = Path(__file__).parent.parent
+_assets_dir = _project_root / "assets"
+
+
+def output_file(file, ext):
+    _assets_dir.mkdir(exist_ok=True)
+    return str(_assets_dir / (Path(file).stem + ext))
+
 
 # Constant used as base deltas.
 h = 0.001

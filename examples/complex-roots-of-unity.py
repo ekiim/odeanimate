@@ -8,8 +8,7 @@ from math import e
 from random import randint
 import handout
 import matplotlib.pyplot as plt
-from examples.output import output_file
-from odeanimate.utils import nth_roots_of_unity
+from odeanimate.utils import nth_roots_of_unity, output_file
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
 

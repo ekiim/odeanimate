@@ -206,6 +206,9 @@ class Interval(MetaInterval):
                 return VoidInterval()
         raise NotImplementedError
 
+    def _repr_latex_(self):
+        return f"${self.limits}$"
+
 
 class DisjointInterval(MetaInterval):
     @staticmethod
@@ -297,6 +300,11 @@ class DisjointInterval(MetaInterval):
             return self
         elif isinstance(other, (Interval, DisjointInterval)):
             return DisjointInterval(*other._parts, *self._parts)
+
+
+class Mesh:
+    def __init__(self, *args, **kwargs):
+        pass
 
 
 if __name__ == "__main__":

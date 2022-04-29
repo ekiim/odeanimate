@@ -3,7 +3,9 @@ import matplotlib.ticker as ticker
 from odeanimate.domains import Interval
 
 
-def cartesian_axes(ax, x_max, y_max=None, x_min=0, y_min=0, symetric=False):
+def cartesian_axes(
+    ax, x_max, y_max=None, x_min=0, y_min=0, symetric=False, labels=None
+):
     """Cartesian Axes
 
     This function will recieve an `Axes` object, and it will set it's configuration
@@ -49,6 +51,21 @@ def cartesian_axes(ax, x_max, y_max=None, x_min=0, y_min=0, symetric=False):
         ax.spines["bottom"].set_position("zero")
     else:
         ax.spines["bottom"].set_position(("data", min([y_min, y_max], key=abs)))
+
+    if isinstance(labels, (list, tuple)) and len(labels) == 2:
+        ax.text(
+            (x_max - x_min) * 0.05,
+            y_max + (y_max - y_min) * 0.2,
+            labels[1],
+            fontsize="12",
+        )
+        ax.text(
+            x_max + (x_max - x_min) * 0.2,
+            (y_max - y_min) * 0.05,
+            labels[0],
+            fontsize="12",
+        )
+
     return ax
 
 

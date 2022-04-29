@@ -1,12 +1,11 @@
 from math import sin, cos, pi
 from numbers import Number
 from odeanimate.vector import Vector2D
-from odeanimate.curve import Curve2D
+from odeanimate.curve import Curve, Curve2D
 
 
 def circle(*p, center=None, r=None):
     """Circle generator function
-
     This works with
     - center and radius
     - 3 points, no circle and no radius
@@ -29,13 +28,7 @@ def circle(*p, center=None, r=None):
 
 
 def line(p, q, m=None):
-    if isinstance(p, Vector2D) and isinstance(q, Vector2D):
-        pass
-    else:
-        raise Exception
-
-    @Curve2D
     def _line(t):
         return t * (q - p) + p
 
-    return _line
+    return Curve(codomain=p.__class__, function=_line)

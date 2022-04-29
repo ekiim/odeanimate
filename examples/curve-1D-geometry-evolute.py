@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from odeanimate.utils import output_file
 from odeanimate.domains import Interval
 from odeanimate.plots.axes import cartesian_axes
-from odeanimate.plots.vectors import vector_2d_single
+
+# from odeanimate.plots.vectors import vector_2d_single
 from odeanimate.curve import Curve2D
 from odeanimate.methods.geometry import circle, line
 
@@ -32,27 +33,29 @@ if __name__ == "__main__":
     rows, cols = 1, 1
 
     t = 0.1
+    # t = t_interval.limits[0] + s*sum(t_interval.limits)
+
+    # t = t_interval.limits[0] + s * sum(t_interval.limits)
     s = step
 
-    t = t_interval.limits[0] + s * sum(t_interval.limits)
     ax = cartesian_axes(fig.add_subplot(rows, cols, 1), x_interval)
-    trayectory = func.map(t_interval, step)
+    trayectory = func.map(t_interval, step, keys=("t", "x", "y"))
     X, Y = trayectory[:, 1], trayectory[:, 2]
     ax.plot(X, Y)
 
     evolute = func.evolute()
-    trayectory = evolute.map(t_interval, step)
+    trayectory = evolute.map(t_interval, step, keys=("t", "x", "y"))
     X, Y = trayectory[:, 1], trayectory[:, 2]
     ax.plot(X, Y)
 
     # Plot current Circle
     center = evolute(t)
     circle = circle(center=center, r=1 / func.curvature()(t))
-    trayectory = circle.map(Interval(0, 1), step)
+    trayectory = circle.map(Interval(0, 1), step, keys=("t", "x", "y"))
     X, Y = trayectory[:, 1], trayectory[:, 2]
     ax.plot(X, Y)
 
-    trayectory = line(func(t), center).map(Interval(0, 1), step)
+    trayectory = line(func(t), center).map(Interval(0, 1), step, keys=("t", "x", "y"))
     X, Y = trayectory[:, 1], trayectory[:, 2]
     ax.plot(X, Y)
 

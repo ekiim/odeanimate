@@ -1,7 +1,7 @@
 import math
+from odeanimate.utils import tolerance
 from numbers import Number
 from functools import wraps
-from odeanimate.utils import dense_range
 
 
 class Vector:
@@ -62,6 +62,25 @@ class Vector:
         self.validation_type(right)
         self.validation_dimension(right)
         return sum(i * j for (i, j) in zip(self.values, right.values))
+
+    @property
+    def direction(self):
+        return self / abs(self)
+
+    def angle_with(self, other):
+        """
+        >>> Vector(0,1).angle_with(Vector(0, -1)) == math.pi
+        True
+        >>> Vector(0,1).angle_with(Vector(1, 0)) == math.pi / 2
+        True
+        >>> (Vector(1,1).angle_with(Vector(1, 0)) - math.pi / 4) < tolerance
+        True
+        """
+        a, b = self.direction, other.direction
+        offset = 0
+        if abs(a - b) < abs(a + b):
+            pass
+        return math.acos(a * b) + offset
 
     def __abs__(self):
         """
@@ -213,6 +232,9 @@ class Vector:
         new_func.derivative = _derivative
         return new_func
 
+    def _repr_latex_(self):
+        return "".join(["$(", ",".join(map(str, self)), ")$"])
+
 
 class Vector2D(Vector):
     def __init__(self, x, y, **kwargs):
@@ -231,12 +253,13 @@ class Vector2D(Vector):
 
     @property
     def angle(self):
-        if self.y == self.x == 0:
-            return 0
-        try:
-            return math.atan(self.y / self.x)
-        except ZeroDivisionError:
-            return 1
+        return math.atan2(self.y, self.x)
+
+    @property
+    def angle_full(self):
+        # offset = math.pi * ((self.quadrant-1) // 2)
+        offset = 0
+        return self.angle + offset
 
     @property
     def _quadrant_tuple(self):
@@ -251,7 +274,7 @@ class Vector2D(Vector):
             ("+", "+"): 1,
             ("+", "-"): 2,
             ("-", "-"): 3,
-            ("+", "-"): 4,
+            ("-", "+"): 4,
         }[self._quadrant_tuple]
 
     @property
@@ -277,15 +300,15 @@ class Vector3D(Vector):
     def __str__(self):
         return f"Vector3D{self.values}"
 
-    def __matmul__(self, other):
+    def __xor__(self, other):
         """
-        >>> Vector3D(1, 1, 1) @ Vector3D(1, 1, 1)
+        >>> Vector3D(1, 1, 1) ^ Vector3D(1, 1, 1)
         Vector3D(0, 0, 0)
-        >>> Vector3D(1, 1, 1) @ Vector3D(1, 0, 1)
+        >>> Vector3D(1, 1, 1) ^ Vector3D(1, 0, 1)
         Vector3D(1, 0, -1)
-        >>> Vector3D(1, 1, 1) @ Vector3D(1, -1, 1)
+        >>> Vector3D(1, 1, 1) ^ Vector3D(1, -1, 1)
         Vector3D(2, 0, -2)
-        >>> Vector3D(1, 1, 0) @ Vector3D(1, -1, 1)
+        >>> Vector3D(1, 1, 0) ^ Vector3D(1, -1, 1)
         Vector3D(1, -1, -2)
         """
         if not isinstance(self, Vector3D):

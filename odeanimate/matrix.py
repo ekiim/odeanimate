@@ -125,6 +125,8 @@ class Matrix:
         True
         >>> Matrix([1, 0], [0, 1]) * Vector(2, 2)
         Vector(2, 2)
+        >>> Matrix([1, 0, 0], [0, 1, 0]) * Vector(2, 2, 2)
+        Vector(2, 2)
         >>> Matrix([1, 0], [0, 1]) * 2
         <Matrix shape=(2, 2) rows=(Vector(2, 0), Vector(0, 2))>
         """

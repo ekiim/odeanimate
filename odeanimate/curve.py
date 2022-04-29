@@ -2,19 +2,20 @@ from numbers import Number
 from functools import cache, update_wrapper, wraps
 from odeanimate.domains import Interval
 from odeanimate.vector import Vector2D, Vector3D
-from odeanimate.matrix import Matrix
+from odeanimate.codomain import Trajectory
 from odeanimate.utils import h as _h, dense_range, to_list
 from odeanimate.methods.integration import simpson_second_rule
 
 
 class Curve:
-    def __init__(self, codomain=None, function=None):
+    def __init__(self, codomain=None, function=None, keys=None):
         if codomain is None:
             raise Exception("Codomain is None.")
         if not callable(function):
             raise Exception("Function is not callable")
         self.codomain = codomain
         self._set_function(function)
+        self._keys = keys
 
     def _set_function(self, function):
         self._function = cache(function)
@@ -121,12 +122,16 @@ class Curve:
 
         return Curve1D(function=_new_func)
 
-    def map(self, interval, h=0.1):
+    def map(self, interval, h=0.1, keys=None):
         if not isinstance(interval, Interval):
             raise Exception("Must evaluate at an interval")
         if self.codomain == Number:
-            return Matrix(*[(t, self(t)) for t in interval(h)])
-        return Matrix(*[(t, *self(t)) for t in interval(h)])
+            return Trajectory(
+                *[(t, self(t)) for t in interval(h)], keys=(keys or self._keys)
+            )
+        return Trajectory(
+            *[(t, *self(t)) for t in interval(h)], keys=(keys or self._keys)
+        )
 
     def derivative(self, h=_h):
         def _derivative(t):
@@ -157,6 +162,9 @@ class Curve:
     def evolute(self):
         return self + self.normal() / self.curvature()
 
+    def _repr_latex_(self):
+        return self.__doc__
+
 
 class Curve1D(Curve):
     """
@@ -171,9 +179,11 @@ class Curve1D(Curve):
         def _function_wrapper(*args, **kwargs):
             return function(*args, **kwargs)
 
-        super().__init__(
-            codomain=Number, function=_function_wrapper if function else None
-        )
+        if kwargs.get("keys", None) is None:
+            kwargs["keys"] = ("x", "y")
+
+        kwargs["codomain"] = Number
+        super().__init__(function=_function_wrapper if function else None, **kwargs)
 
     def integrate(self, a, b, h=_h, integrator=simpson_second_rule):
         _integrator = cache(integrator)
@@ -217,7 +227,10 @@ class Curve2D(Curve):
     """
 
     def __init__(self, function=None, **kwargs):
-        super().__init__(codomain=Vector2D, function=function)
+        kwargs["codomain"] = Vector2D
+        if kwargs.get("keys", None) is None:
+            kwargs["keys"] = ("t", "x", "y")
+        super().__init__(function=function, **kwargs)
 
     @property
     def J(self):
@@ -245,26 +258,29 @@ class Curve3D(Curve):
     """
 
     def __init__(self, function=None, **kwargs):
-        super().__init__(codomain=Vector3D, function=function)
+        kwargs["codomain"] = Vector3D
+        if kwargs.get("keys", None) is None:
+            kwargs["keys"] = ("t", "x", "y", "z")
+        super().__init__(function=function, **kwargs)
 
-    def __matmul__(self, other):
+    def __xor__(self, other):
         _new_func = None
         if isinstance(other, Curve3D):
 
             def _new_func(t):
-                return self(t) @ other(t)
+                return self(t) ^ other(t)
 
         elif isinstance(other, Vector3D):
 
             def _new_func(t):
-                return self(t) @ other
+                return self(t) ^ other
 
         if _new_func is not None:
             return self.__class__(function=_new_func, codomain=self.codomain)
         raise Exception("Can not do cross product with this function")
 
     def binormal(self):
-        return self.tangent() @ self.normal()
+        return self.tangent() ^ self.normal()
 
 
 if __name__ == "__main__":

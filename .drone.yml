@@ -81,7 +81,7 @@ steps:
       from_secret: SSH_KEY
   settings:
     branch: release
-    remote: "git@github.com:ekiim/odeanimate.git"
+    remote: "ssh://git@github.com:ekiim/odeanimate.git"
     ssh_key: "${SSH_KEY}"
 
 volumes:

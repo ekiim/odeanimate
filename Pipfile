@@ -18,14 +18,17 @@ pylint = "*"
 pytest = "*"
 pytest-html = "*"
 setuptools = "*"
+appnope = "*"
+ipywidgets = "*"
+jupyterlab-katex = "*"
+python-lsp-server = {extras = ["all"], version = "*"}
+twine = "*"
+build = "*"
 
 [requires]
 python_version = "3.9"
 
 [scripts]
 clean = "rm -rf html"
-docs = "./scripts/build_docs.sh"
-examples = "./scripts/examples.sh"
 lint = "./scripts/lint.sh"
-serve = "python -m http.server --directory docs"
 tests = "./scripts/tests.sh"

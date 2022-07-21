@@ -127,6 +127,14 @@ class Interpolator:
         )
 
 
+def latest_common_ancestor_class(A, B):
+    classes_pairs = zip(A.mro()[::-1], B.mro()[::-1])
+    for i, (c1, c2) in enumerate(classes_pairs):
+        if c1 != c2:
+            break
+    return A.mro()[-(i - 1)]
+
+
 if __name__ == "__main__":
     import doctest
 

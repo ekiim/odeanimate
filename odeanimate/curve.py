@@ -3,7 +3,7 @@ from functools import cache, update_wrapper, wraps
 from odeanimate.domains import Interval
 from odeanimate.vector import Vector2D, Vector3D
 from odeanimate.codomain import Trajectory
-from odeanimate.utils import h as _h, dense_range, to_list
+from odeanimate.utils import h as _h, to_list
 from odeanimate.methods.integration import simpson_second_rule
 
 
@@ -27,14 +27,14 @@ class Curve:
             return self
         if self._function is not None:
             _returnable = self._function(*args, **kwargs)
-            if isinstance(_returnable, self.codomain):
+            if isinstance(_returnable, self.codomain) or self.codomain is Number:
                 return _returnable
             else:
                 return self.codomain(*to_list(_returnable))
 
     def __add__(self, other):
         _new_func = None
-        if isinstance(other, self.__class__):
+        if isinstance(other, tuple(self.__class__.mro())[:-1]):
 
             def _new_func(x):
                 return self(x) + other(x)
@@ -54,6 +54,9 @@ class Curve:
         if _new_func is not None:
             return self.__class__(codomain=self.codomain, function=_new_func)
         raise Exception("Can not resolve function")
+
+    def __sub__(self, other):
+        return self + (-1) * other
 
     def __mul__(self, other):
         cls = self.__class__
@@ -165,6 +168,12 @@ class Curve:
     def _repr_latex_(self):
         return self.__doc__
 
+    def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
+        if not isinstance(interval, Interval):
+            raise Exception("Missing interval for plot")
+        trayectory = self.map(interval, delta)
+        ax.plot(trayectory.x, trayectory.y)
+
 
 class Curve1D(Curve):
     """
@@ -187,7 +196,47 @@ class Curve1D(Curve):
 
     def integrate(self, a, b, h=_h, integrator=simpson_second_rule):
         _integrator = cache(integrator)
-        return sum(map(lambda t: _integrator(self, t, t + h), dense_range(a, b, h)))
+        if a <= b:
+            interval = Interval(a, b)
+            factor = 1
+        else:
+            interval = Interval(b, a)
+            factor = -1
+        return factor * sum(map(lambda t: _integrator(self, t, t + h), interval(h)))
+
+    def __add__(self, other):
+        _new_func = None
+        if isinstance(other, self.codomain):
+
+            def _new_func(x):
+                return self(x) + other
+
+        elif isinstance(other, tuple(self.__class__.mro()[:-1])):
+
+            def _new_func(x):
+                return self(x) + other(x)
+
+        else:
+            raise Exception("Incompatible Sum")
+        if _new_func is not None:
+            return Curve1D(codomain=self.codomain, function=_new_func)
+        return super().__add__(other)
+
+    def __mul__(self, other):
+        _new_func = None
+        if isinstance(other, Curve1D):
+
+            def _new_func(x):
+                return self(x) * other(x)
+
+        elif isinstance(other, self.codomain):
+
+            def _new_func(x):
+                return self(x) * other
+
+        if _new_func is not None:
+            return Curve1D(codomain=self.codomain, function=_new_func)
+        return super().__mul__(other)
 
     def __rtruediv__(self, other):
         """
@@ -206,6 +255,12 @@ class Curve1D(Curve):
 
     def __pow__(self, other):
         return Curve1D(function=lambda t: self(t) ** other)
+
+    def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
+        if not isinstance(interval, Interval):
+            raise Exception("Missing interval for plot")
+        trayectory = self.map(interval, delta, keys=["x", "y"])
+        ax.plot(trayectory.x, trayectory.y)
 
 
 class Curve2D(Curve):
@@ -244,6 +299,12 @@ class Curve2D(Curve):
         dd = d.derivative()
         return abs(d * dd.J) / abs(d) ** 3
 
+    def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
+        if not isinstance(interval, Interval):
+            raise Exception("Missing interval for plot")
+        trayectory = self.map(interval, delta, keys=["t", "x", "y"])
+        ax.plot(trayectory.x, trayectory.y)
+
 
 class Curve3D(Curve):
     """
@@ -281,6 +342,12 @@ class Curve3D(Curve):
 
     def binormal(self):
         return self.tangent() ^ self.normal()
+
+    def _plot_3d(self, ax, interval=None, delta=None, **kwargs):
+        if not isinstance(interval, Interval):
+            raise Exception("Missing interval for plot")
+        trayectory = self.map(interval, delta, keys=["t", "x", "y", "z"])
+        ax.plot(trayectory.x, trayectory.y, trayectory.z)
 
 
 if __name__ == "__main__":

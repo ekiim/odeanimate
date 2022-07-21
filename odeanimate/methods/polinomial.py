@@ -25,28 +25,17 @@ class Polinomial(Curve1D):
             new_coefs.extend(bigger.coefs[1 + smaller.degree :])
         if isinstance(other, Number):
             new_coefs = (self.coefs[0] + other, *self.coefs[1:])
-        if new_coefs:
+        if new_coefs is not None:
             return Polinomial(*new_coefs)
-        return super(Polinomial, self).__add__(other)
+        return super().__add__(other)
 
     def __mul__(self, other):
         new_coefs = None
-        if isinstance(other, Polinomial):
-            max_degree = self.degree + other.degree
-            roots = nth_roots_of_unity(max_degree)
-            new_point_values = [
-                (x, y1 + y2)
-                for (x, y1), (_, y2) in zip(
-                    self.point_values(roots),
-                    other.point_values(roots),
-                )
-            ]
-            pass
         if isinstance(other, Number):
             new_coefs = [other * c for c in self.coefs]
-        if new_coefs:
+        if new_coefs is not None:
             return Polinomial(*new_coefs)
-        return super(Polinomial, self).__mul__(other)
+        return super().__mul__(other)
 
     def __repr__(self):
         return f"<Polinomial {self.coefs}>"

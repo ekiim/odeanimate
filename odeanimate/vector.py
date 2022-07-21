@@ -1,7 +1,7 @@
-import math
-from odeanimate.utils import tolerance
 from numbers import Number
 from functools import wraps
+from math import acos, atan2
+from odeanimate.utils import tolerance
 
 
 class Vector:
@@ -24,6 +24,9 @@ class Vector:
             raise Exception("Error on args, invalid types.")
         self.dimension = len(args)
         self.values = args
+        self.origin = kwargs.get("origin", None)
+        if self.origin is not None and not isinstance(self.origin, (self.__class__)):
+            raise TypeError("Unsupported origin for the vector")
 
     def __len__(self):
         return self.dimension
@@ -52,7 +55,7 @@ class Vector:
         return self.norm(p=2)
 
     def norm(self, p=2):
-        return sum(i**p for i in self.values) ** (1.0 / p)
+        return sum(abs(i) ** p for i in self.values) ** (1.0 / p)
 
     def dot(self, right):
         """
@@ -69,18 +72,16 @@ class Vector:
 
     def angle_with(self, other):
         """
-        >>> Vector(0,1).angle_with(Vector(0, -1)) == math.pi
+        >>> from math import pi
+        >>> Vector(0,1).angle_with(Vector(0, -1)) == pi
         True
-        >>> Vector(0,1).angle_with(Vector(1, 0)) == math.pi / 2
+        >>> Vector(0,1).angle_with(Vector(1, 0)) == pi / 2
         True
-        >>> (Vector(1,1).angle_with(Vector(1, 0)) - math.pi / 4) < tolerance
+        >>> (Vector(1,1).angle_with(Vector(1, 0)) - pi / 4) < tolerance
         True
         """
         a, b = self.direction, other.direction
-        offset = 0
-        if abs(a - b) < abs(a + b):
-            pass
-        return math.acos(a * b) + offset
+        return abs(acos(a * b))
 
     def __abs__(self):
         """
@@ -154,12 +155,14 @@ class Vector:
         >>> Vector(10, 10, 10) / 10
         Vector(1.0, 1.0, 1.0)
         """
-        return self * (1 / left)
+        if isinstance(left, Number):
+            return self * (1 / left)
+        raise TypeError("Can not divide by a non number")
 
     def __rtruediv__(self, other):
         if len(self) == 1 and isinstance(other, Number):
             return Vector(other / self[0])
-        raise NotImplemented
+        return NotImplemented
 
     def __eq__(self, other):
         returnable = False
@@ -222,16 +225,6 @@ class Vector:
 
         return _vector_codomain
 
-    @classmethod
-    def curve(cls, func):
-        new_func = cls.codomain(func)
-
-        def _derivative(t, h=0.001, **kwargs):
-            return (new_func(t + h) - new_func(t - h)) / (2 * h)
-
-        new_func.derivative = _derivative
-        return new_func
-
     def _repr_latex_(self):
         return "".join(["$(", ",".join(map(str, self)), ")$"])
 
@@ -253,11 +246,11 @@ class Vector2D(Vector):
 
     @property
     def angle(self):
-        return math.atan2(self.y, self.x)
+        return atan2(self.y, self.x)
 
     @property
     def angle_full(self):
-        # offset = math.pi * ((self.quadrant-1) // 2)
+        # offset = pi * ((self.quadrant-1) // 2)
         offset = 0
         return self.angle + offset
 
@@ -291,6 +284,30 @@ class Vector2D(Vector):
             return vector
         elif isinstance(vector, Vector) and vector.dimension == 2:
             return cls(vector[0], vector[1])
+
+    @classmethod
+    def from_complex(cls, z):
+        return Vector2D(z.real, z.imag)
+
+    def _plot_2d(self, ax, point=False, origin=None, **kwargs):
+        if point:
+            ax.scatter([self.x], [self.y])
+        else:
+            if self.origin:
+                origin = self.origin
+            elif isinstance(origin, self.__class__):
+                pass
+            else:
+                origin = self.__class__(0, 0)
+            ax.quiver(
+                [origin.x],
+                [origin.y],
+                [self.x],
+                [self.y],
+                angles="xy",
+                scale_units="xy",
+                scale=1,
+            )
 
 
 class Vector3D(Vector):
@@ -345,6 +362,28 @@ class Vector3D(Vector):
             return vector
         elif isinstance(vector, Vector) and vector.dimension == 2:
             return cls(vector[0], vector[1], vector[2])
+
+    def _plot_3d(self, ax, point=False, origin=None, **kwargs):
+        if point:
+            ax.scatter([self.x], [self.y], [self.z])
+        else:
+            if self.origin:
+                origin = self.origin
+            elif isinstance(origin, self.__class__):
+                pass
+            else:
+                origin = self.__class__(0, 0, 0)
+            ax.quiver(
+                [origin.x],
+                [origin.y],
+                [origin.z],
+                [self.x],
+                [self.y],
+                [self.z],
+            )
+
+    def to_2D(self):
+        return Vector2D(self.x, self.y)
 
 
 if __name__ == "__main__":

@@ -16,12 +16,6 @@ class Trajectory(Matrix):
         #    key = tuple(self._keys.index(k) for k in key)
         return super().__getitem__(key)
 
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except:
-            return None
-
     def __repr__(self):
         if self._keys and len(self._keys):
             keys = f" keys={self._keys}"
@@ -57,3 +51,14 @@ class Trajectory(Matrix):
                 "</table>",
             ]
         )
+
+    def _plot_2d(self, ax, keys=["x", "y"], **kwargs):
+        x = getattr(self, keys[0])
+        y = getattr(self, keys[1])
+        ax.plot(x, y)
+
+    def _plot_3d(self, ax, keys=["x", "y", "z"], **kwargs):
+        x = getattr(self, keys[0])
+        y = getattr(self, keys[1])
+        z = getattr(self, keys[2])
+        ax.plot(x, y, z)

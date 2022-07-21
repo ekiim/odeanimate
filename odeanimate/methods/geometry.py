@@ -1,7 +1,8 @@
 from math import sin, cos, pi
 from numbers import Number
-from odeanimate.vector import Vector2D
-from odeanimate.curve import Curve, Curve2D
+from re import I
+from odeanimate.vector import Vector2D, Vector3D
+from odeanimate.curve import Curve, Curve2D, Curve3D
 
 
 def circle(*p, center=None, r=None):
@@ -31,4 +32,15 @@ def line(p, q, m=None):
     def _line(t):
         return t * (q - p) + p
 
-    return Curve(codomain=p.__class__, function=_line)
+    if isinstance(p, Vector2D):
+        cls = Curve2D
+    elif isinstance(p, Vector3D):
+        cls = Curve3D
+    else:
+        cls = Curve
+    return cls(codomain=p.__class__, function=_line)
+
+
+Line = line
+StraightLine = line
+Circle = circle

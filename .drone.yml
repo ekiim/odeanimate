@@ -3,6 +3,7 @@ type: docker
 name: Default
 trigger:
   event:
+  - push
   - pull_request
 
 steps:
@@ -72,9 +73,7 @@ steps:
   - date
   - echo "$PYPIRC" > ~/.pypirc
   - python -m build
-  - twine upload dist/*
-
-
+  - twine upload --skip-existing --verbose dist/*
 
 volumes:
 - name: dockersock

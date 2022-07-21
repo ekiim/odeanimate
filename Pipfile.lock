@@ -1,7 +1,11 @@
 {
     "_meta": {
         "hash": {
+<<<<<<< HEAD
             "sha256": "15bd1a86a091f96976ed90707554a67522a70079ebc78a95b809ac759c4d47c9"
+=======
+            "sha256": "281e71efdcae279db82f9e9cf3cc0364e1dc3523d815fb5f5ad7c61c91140f39"
+>>>>>>> release
         },
         "pipfile-spec": 6,
         "requires": {
@@ -731,7 +735,11 @@
                 "sha256:7ca74052a38fa25fe9bedf52da0be7d3fdd2fb027c3b778ea78dfe8c212937d1",
                 "sha256:f2db3a10254241d9b447232cec8b424847f338d9d36f9a577a6192c332a46abd"
             ],
+<<<<<<< HEAD
             "markers": "python_version >= '3.3'",
+=======
+            "markers": "python_version >= '3.8'",
+>>>>>>> release
             "version": "==8.4.0"
         },
         "ipython-genutils": {
@@ -1112,7 +1120,11 @@
                 "sha256:6268c9ec9048cff7a45405c990c29ac9ca40b0bc3ec29263d218c5e01f2b4e86",
                 "sha256:8c07a3bb7640e371f8a609bdbb2366a1976c6a2589da8ef917f761a61e3ad8b1"
             ],
+<<<<<<< HEAD
             "markers": "python_version >= '3.7'",
+=======
+            "index": "pypi",
+>>>>>>> release
             "version": "==6.4.12"
         },
         "notebook-shim": {
@@ -1351,6 +1363,10 @@
                 "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35",
                 "sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"
             ],
+<<<<<<< HEAD
+=======
+            "markers": "os_name != 'nt'",
+>>>>>>> release
             "version": "==0.7.0"
         },
         "pure-eval": {
@@ -1710,7 +1726,11 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
+<<<<<<< HEAD
             "markers": "python_full_version < '3.11.0a7'",
+=======
+            "markers": "python_version < '3.11'",
+>>>>>>> release
             "version": "==2.0.1"
         },
         "tomlkit": {

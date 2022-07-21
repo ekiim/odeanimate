@@ -10,7 +10,8 @@ authors = [
 description = "A module for useful quick mathematical calculation, plotting and animation."
 requires-python = ">= 3.7"
 keywords = ["math", "plots", "numerical-analysis"]
-license = { file="LICENSE.txt" }
+license = { text = "GPL2" }
+readme = "README.md"
 classifiers =[
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Education",

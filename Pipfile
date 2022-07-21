@@ -7,23 +7,24 @@ name = "pypi"
 odeanimate = {editable = true, path = "."}
 
 [dev-packages]
+appnope = "*"
 black = {extras = ["jupyter"], version = "*"}
+build = "*"
 coverage = "*"
 ffmpeg-python = "*"
 handout = "*"
 install = "*"
+ipywidgets = "*"
 jupyterlab = "*"
+jupyterlab-katex = "*"
 matplotlib = "*"
+notebook = "*"
 pylint = "*"
 pytest = "*"
 pytest-html = "*"
-setuptools = "*"
-appnope = "*"
-ipywidgets = "*"
-jupyterlab-katex = "*"
 python-lsp-server = {extras = ["all"], version = "*"}
+setuptools = "*"
 twine = "*"
-build = "*"
 
 [requires]
 python_version = "3.9"

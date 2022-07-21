@@ -3,6 +3,7 @@ type: docker
 name: Default
 trigger:
   event:
+  - push
   - pull_request
 
 steps:

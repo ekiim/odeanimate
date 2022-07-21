@@ -82,7 +82,7 @@ steps:
   settings:
     branch: release
     remote: "git@github.com:ekiim/odeanimate.git"
-    ssh_key: ${SSH_KEY}
+    ssh_key: "${SSH_KEY}"
 
 volumes:
 - name: dockersock

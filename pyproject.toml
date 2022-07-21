@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "odeanimate"
+authors = [
+    { name= "Miguel Alejandro Salgado Zapien", email= "ekiim@ekiim.xyz" },
+]
+description = "A module for useful quick mathematical calculation, plotting and animation."
+requires-python = ">= 3.7"
+keywords = ["math", "plots", "numerical-analysis"]
+license = { file="LICENSE.txt" }
+classifiers =[
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "matplotlib",
+    "ffmpeg-python"
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://odeanimate.ekiim.xyz/"
+Source = "https://github.com/ekiim/odeanimate"
+
+[tool.setuptools]
+packages = ["odeanimate"]
+
+[tool.setuptools.dynamic]
+version = {attr = "odeanimate.__version__"}

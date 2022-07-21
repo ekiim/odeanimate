@@ -74,8 +74,13 @@ steps:
   - echo "$PYPIRC" > ~/.pypirc
   - python -m build
   - twine upload --skip-existing --verbose dist/*
-
-
+- name: git-push
+  image: appleboy/drone-git-push
+  settings:
+    branch: release
+    remote: git@github.com:ekiim/odeanimate.git
+    ssh_key:
+      from_secret: SSH_KEY
 
 volumes:
 - name: dockersock

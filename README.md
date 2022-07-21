@@ -1,5 +1,7 @@
 # ODE Animate
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ekiim/odeanimate/release)
+
 This project aims to be a set of tools for solving, plotting, and animating curves and fields.
 
 > The rational for this is, _trying to use pure-python_ to do numerical analysis.

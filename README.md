@@ -1,6 +1,7 @@
 # ODE Animate
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ekiim/odeanimate/release)
+[![PyPI version](https://badge.fury.io/py/odeanimate.svg)](https://pypi.org/project/odeanimate/)
 
 This project aims to be a set of tools for solving, plotting, and animating curves and fields.
 

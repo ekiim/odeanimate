@@ -65,8 +65,15 @@ trigger:
 steps:
 - name: Publish to PyPi
   image: odeanimate:drone-${DRONE_COMMIT}
+  environment:
+    PYPIRC:
+      from_secret: PYPIRC
   commands:
   - date
+  - echo "$PYPIRC" > ~/.pypirc
+  - python -m build
+  - twine upload dist/*
+
 
 
 volumes:

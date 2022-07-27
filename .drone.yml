@@ -22,13 +22,6 @@ steps:
   depends_on:
     - Build Docker Image
 
-- name: PyLint
-  image: odeanimate:drone-${DRONE_COMMIT}
-  commands:
-    - ./scripts/lint.sh
-  depends_on:
-    - Build Docker Image
-
 - name: Tests
   image: odeanimate:drone-${DRONE_COMMIT}
   commands:
@@ -42,7 +35,6 @@ steps:
     - echo "Code Verification Complete"
   depends_on:
     - Black
-    - PyLint
     - Tests
 
 volumes:
@@ -72,8 +64,8 @@ steps:
   commands:
   - date
   - echo "$PYPIRC" > ~/.pypirc
-  - python -m build
-  - twine upload --skip-existing --verbose dist/*
+  - poetry build
+  - poetry publish
 
 volumes:
 - name: dockersock

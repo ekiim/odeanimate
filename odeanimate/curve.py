@@ -1,10 +1,13 @@
 from numbers import Number
-from functools import cache, update_wrapper, wraps
+from functools import lru_cache, update_wrapper, wraps
 from odeanimate.domains import Interval
 from odeanimate.vector import Vector2D, Vector3D
 from odeanimate.codomain import Trajectory
 from odeanimate.utils import h as _h, to_list
 from odeanimate.methods.integration import simpson_second_rule
+
+
+cache = lru_cache(maxsize=None)
 
 
 class Curve:

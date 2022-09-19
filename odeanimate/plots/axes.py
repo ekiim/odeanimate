@@ -1,7 +1,9 @@
 from itertools import chain
+from numbers import Number
 import matplotlib.ticker as ticker
 from matplotlib.axes import Axes
 from mpl_toolkits.mplot3d import Axes3D
+
 from odeanimate.domains import Interval
 
 
@@ -52,6 +54,27 @@ class ODEAnimateAxes(Axes):
             else:
                 raise TypeError("Object does not support add plot.")
         return self
+
+    def set_markers(self, x_markers=None, y_markers=None, major=True):
+        for axis, markers in [(self.xaxis, x_markers), (self.yaxis, y_markers)]:
+            if markers is not None and all([isinstance(x, Number) for x in markers]):
+                markers = [(i, None) for i in markers]
+
+            if markers is not None and all([isinstance(x, tuple) for x in markers]):
+                makers = sorted(markers, key=lambda i: i[0])
+                marks, labels = zip(*markers)
+                getattr(axis, "set_major_locator" if major else "set_minor_locator")(
+                    ticker.FixedLocator(marks)
+                )
+                if all([isinstance(label, str) for label in labels]):
+                    getattr(
+                        axis, "set_major_formatter" if major else "set_minor_formatter"
+                    )(ticker.FixedFormatter(labels))
+                continue
+            if markers is not None:
+                raise Exception(
+                    "Invalid marker structure, has to be list of numbers or list of tuples (X, label)"
+                )
 
 
 class ODEAnimateAxes3D(Axes3D):

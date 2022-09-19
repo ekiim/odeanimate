@@ -1,8 +1,24 @@
 from math import pi, sin, cos
 from array import array
 from pathlib import Path
-from functools import reduce, lru_cache
+from functools import lru_cache
+from numbers import Real
 import operator
+
+
+cache = lru_cache(maxsize=None)
+
+
+class RealNumber(Real):
+    @classmethod
+    def is_compatible(cls, *value):
+        return len(value) == 1 and isinstance(value[0], Real)
+
+    @classmethod
+    def from_compatible(cls, value):
+        if cls.is_compatible(value):
+            return value
+        raise Exception("Value is not compatible with real numbers")
 
 
 # Specific values for the project, in order to build the assets directory.

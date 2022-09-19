@@ -29,6 +29,13 @@ steps:
   depends_on:
     - Build Docker Image
 
+- name: Documentation
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+    - ./scripts/docs.sh
+  depends_on:
+    - Build Docker Image
+
 - name: Code Verification
   image: odeanimate:drone-${DRONE_COMMIT}
   commands:
@@ -36,6 +43,7 @@ steps:
   depends_on:
     - Black
     - Tests
+    - Documentation
 
 volumes:
 - name: dockersock

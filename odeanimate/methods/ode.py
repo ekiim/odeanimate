@@ -1,6 +1,4 @@
 def euler_method(func, h, t, x):
-    # print(x)
-    # print(func(t, x))
     return x + h * func(t, x)
 
 

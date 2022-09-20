@@ -92,8 +92,6 @@ steps:
     delete: true
     key:
       from_secret: ekiim-deployer-ssh
-  depends_on:
-    - Building Site
 
 volumes:
 - name: dockersock

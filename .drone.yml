@@ -67,13 +67,33 @@ steps:
 - name: Publish to PyPi
   image: odeanimate:drone-${DRONE_COMMIT}
   environment:
-    PYPIRC:
-      from_secret: PYPIRC
+    PYPI_USERNAME: "__token__"
+    PYPI_PASSWORD:
+      from_secret: PYPI_TOKEN_FULL
   commands:
   - date
-  - echo "$PYPIRC" > ~/.pypirc
   - poetry build
-  - poetry publish
+  - poetry publish -v
+
+- name: Generate Documentation Site
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+  - date
+  - poetry run ./scripts/docs.sh
+
+- name: Deploy Documentation Site
+  image: drillster/drone-rsync
+  settings:
+    hosts: [ "ekiim.xyz" ]
+    user: ekiim
+    source: /drone/src/site/.
+    target: /var/www/xyz.ekiim.odeanimate
+    recursive: true
+    delete: true
+    key:
+      from_secret: ekiim-deployer-ssh
+  depends_on:
+    - Building Site
 
 volumes:
 - name: dockersock

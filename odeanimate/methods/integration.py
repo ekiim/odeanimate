@@ -28,10 +28,12 @@ def riemann_variant(variant, f, x, step):
     returnable = 0
     if variant == "left":
         returnable = riemann_left(f, x, x + step)
-    if variant == "mid":
+    elif variant == "mid":
         returnable = riemann_mid(f, x, x + step)
-    if variant == "right":
+    elif variant == "right":
         returnable = riemann_right(f, x, x + step)
+    else:
+        raise Exception("Unknown variant")
     return returnable
 
 

@@ -22,17 +22,17 @@ steps:
   depends_on:
     - Build Docker Image
 
-- name: PyLint
-  image: odeanimate:drone-${DRONE_COMMIT}
-  commands:
-    - ./scripts/lint.sh
-  depends_on:
-    - Build Docker Image
-
 - name: Tests
   image: odeanimate:drone-${DRONE_COMMIT}
   commands:
     - ./scripts/tests.sh
+  depends_on:
+    - Build Docker Image
+
+- name: Documentation
+  image: odeanimate:drone-${DRONE_COMMIT}
+  commands:
+    - ./scripts/docs.sh
   depends_on:
     - Build Docker Image
 
@@ -42,8 +42,8 @@ steps:
     - echo "Code Verification Complete"
   depends_on:
     - Black
-    - PyLint
     - Tests
+    - Documentation
 
 volumes:
 - name: dockersock
@@ -72,17 +72,8 @@ steps:
   commands:
   - date
   - echo "$PYPIRC" > ~/.pypirc
-  - python -m build
-  - twine upload --skip-existing --verbose dist/*
-- name: git-push
-  image: appleboy/drone-git-push
-  environment:
-    SSH_KEY:
-      from_secret: SSH_KEY
-  settings:
-    branch: release
-    remote: "git@github.com:ekiim/odeanimate.git"
-    ssh_key: "${SSH_KEY}"
+  - poetry build
+  - poetry publish
 
 volumes:
 - name: dockersock

@@ -1,17 +1,9 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "odeanimate"
-authors = [
-    { name= "Miguel Alejandro Salgado Zapien", email= "ekiim@ekiim.xyz" },
-]
+version = "0.0.3"
+authors = ["Miguel Alejandro Salgado Zapien <ekiim@ekiim.xyz>"]
 description = "A module for useful quick mathematical calculation, plotting and animation."
-requires-python = ">= 3.7"
-keywords = ["math", "plots", "numerical-analysis"]
-license = { text = "GPL2" }
-readme = "README.md"
+license = "GPL-2.0"
 classifiers =[
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Education",
@@ -21,18 +13,33 @@ classifiers =[
     "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Scientific/Engineering :: Physics",
 ]
-dependencies = [
-    "matplotlib",
-    "ffmpeg-python"
-]
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://odeanimate.ekiim.xyz/"
 Source = "https://github.com/ekiim/odeanimate"
 
-[tool.setuptools]
-packages = ["odeanimate"]
+[tool.poetry.dependencies]
+python = "^3.7.2"
+matplotlib = "^3.5.2"
+ffmpeg-python = "^0.2.0"
 
-[tool.setuptools.dynamic]
-version = {attr = "odeanimate.__version__"}
+[tool.poetry.dev-dependencies]
+ipywidgets = "^7.7.1"
+jupyterlab = "^3.4.4"
+notebook = "^6.4.12"
+black = {extras = ["jupyter"], version = "^22.6.0"}
+pytest = "^7.1.2"
+coverage = "^6.4.2"
+mkdocs = "^1.3.1"
+mkdocstrings = {extras = ["python"], version = "^0.19.0"}
+mkdocstrings-python = "^0.7.1"
+mkdocs-jupyter = "^0.21.0"
+mkdocs-material = "^8.3.9"
+mkautodoc = "^0.2.0"
+jupyterlab-mathjax3 = "^4.3.0"
+jupyterlab-katex = "^3.3.0"
+mkdocs-section-index = "^0.3.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

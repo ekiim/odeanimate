@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-black --check odeanimate examples tests
+black --check odeanimate docs tests
 exit $?

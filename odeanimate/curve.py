@@ -1,71 +1,93 @@
-from numbers import Number
-from functools import cache, update_wrapper, wraps
+"""
+# Curves
+
+We say that a curve is a function that takes real values and
+asigns a value of the codomain to it.
+
+We usually think of it as _time_ hence most of the times the parameter
+for the curves will be $t$.
+"""
+
 from odeanimate.domains import Interval
-from odeanimate.vector import Vector2D, Vector3D
+from odeanimate.vector import Vector, Vector2D, Vector3D
 from odeanimate.codomain import Trajectory
-from odeanimate.utils import h as _h, to_list
+from odeanimate.mixin import MathematicalFunction
+from odeanimate.utils import (
+    cache,
+    h as _h,
+    RealNumber,
+)
 from odeanimate.methods.integration import simpson_second_rule
 
 
-class Curve:
-    def __init__(self, codomain=None, function=None, keys=None):
-        if codomain is None:
-            raise Exception("Codomain is None.")
-        if not callable(function):
-            raise Exception("Function is not callable")
-        self.codomain = codomain
-        self._set_function(function)
-        self._keys = keys
+class Curve(MathematicalFunction):
+    """Curve Generic Object
 
-    def _set_function(self, function):
-        self._function = cache(function)
-        update_wrapper(self, function)
+    This method implements most of what it's required for curves,
+    It will act as a decorator to functions, and the function
+    will be gifted with the curve behaviours.
 
-    def __call__(self, *args, _func=None, **kwargs):
-        if callable(args[0]):
-            self._set_function(args[0])
-            return self
-        if self._function is not None:
-            _returnable = self._function(*args, **kwargs)
-            if isinstance(_returnable, self.codomain) or self.codomain is Number:
-                return _returnable
-            else:
-                return self.codomain(*to_list(_returnable))
+    One of the important assumptions is that functions defined
+    in for all of the domain.
 
-    def __add__(self, other):
-        _new_func = None
-        if isinstance(other, tuple(self.__class__.mro())[:-1]):
+    > The function will only get evaluated whenever you request a value.
+    > We don't have a way to validate if the evaluation falls out side the domain
+    > Like if you are evaluating outside a given interval.
 
-            def _new_func(x):
-                return self(x) + other(x)
 
-        elif isinstance(other, Curve) and self.codomain == other.codomain:
+    The Curve Object is capable of doing operations by failling back to the
+    codomain features.
 
-            def _new_func(x):
-                return self(x) + other(x)
+        >>> @Curve
+        ... def A(t):
+        ...     return 1, 2*t
+        ...
+        >>> @Curve
+        ... def B(t):
+        ...     return 1, 4*t
+        ...
 
-        elif isinstance(other, self.codomain):
+    Peform addition
 
-            def _new_func(x):
-                return self(x) + other
+        >>> (A + B)(0)
+        Vector(2, 0)
+        >>> (A + Vector(1, 0))(0)
+        Vector(2, 0)
 
-        else:
-            raise Exception("Incompatible Sum")
-        if _new_func is not None:
-            return self.__class__(codomain=self.codomain, function=_new_func)
-        raise Exception("Can not resolve function")
+    Substraction
 
-    def __sub__(self, other):
-        return self + (-1) * other
+        >>> (A - B)(0)
+        Vector(0, 0)
+        >>> (A - Vector(1, 0))(0)
+        Vector(0, 0)
+
+    Multiplication and division
+
+        >>> (A * 2)(0)
+        Vector(2, 0)
+
+        >>> (A / 2)(0)
+        Vector(0.5, 0.0)
+
+    """
+
+    domain = RealNumber
+    codomain = Vector
 
     def __mul__(self, other):
+        """
+        Multiplication is allowed by `Curve1D`, `RealNumber` compatible objects
+        and by curves of the same kind that could produces a `Curve1D`.
+
+        """
+
         cls = self.__class__
         if isinstance(other, Curve1D):
 
             def _new_func(x):
                 return self(x) * other(x)
 
-        elif isinstance(other, Number):
+        elif RealNumber.is_compatible(other):
 
             def _new_func(x):
                 return self(x) * other
@@ -90,10 +112,15 @@ class Curve:
 
     def __truediv__(self, other):
         """
-        >>> (Curve1D(lambda x: x**2) / Curve1D(lambda x: -x))(1)
-        -1.0
-        >>> (Curve1D(lambda x: x**2) / 2)(1)
-        0.5
+        The division will be define as the multiplication against the reciprocal
+        of other.
+
+        Examples:
+
+            >>> (Curve1D(lambda x: x**2) / Curve1D(lambda x: -x))(1)
+            -1.0
+            >>> (Curve1D(lambda x: x**2) / 2)(1)
+            0.5
         """
         _new_func = None
         if isinstance(other, Curve1D):
@@ -101,7 +128,7 @@ class Curve:
             def _new_func(x):
                 return self(x) / other(x)
 
-        elif isinstance(other, Number):
+        elif RealNumber.is_compatible(other):
 
             def _new_func(x):
                 return self(x) / other
@@ -112,12 +139,13 @@ class Curve:
 
     def __abs__(self):
         """
-        >>> abs(Curve1D(lambda x: -x))(1)
-        1
-        >>> abs(Curve2D(lambda x: (x - 3, x - 4)))(0)
-        5.0
-        >>> abs(Curve3D(lambda x: (x-3, x-4, x)))(0)
-        5.0
+        Examples:
+            >>> abs(Curve1D(lambda x: -x))(1)
+            1
+            >>> abs(Curve2D(lambda x: (x - 3, x - 4)))(0)
+            5.0
+            >>> abs(Curve3D(lambda x: (x-3, x-4, x)))(0)
+            5.0
         """
 
         def _new_func(x):
@@ -128,12 +156,10 @@ class Curve:
     def map(self, interval, h=0.1, keys=None):
         if not isinstance(interval, Interval):
             raise Exception("Must evaluate at an interval")
-        if self.codomain == Number:
-            return Trajectory(
-                *[(t, self(t)) for t in interval(h)], keys=(keys or self._keys)
-            )
+        if h <= 0:
+            raise Exception("Delta should be greater than 0.")
         return Trajectory(
-            *[(t, *self(t)) for t in interval(h)], keys=(keys or self._keys)
+            *[Vector(t, *self(t)) for t in interval(h)], keys=(keys or self._keys)
         )
 
     def derivative(self, h=_h):
@@ -144,14 +170,15 @@ class Curve:
 
     def tangent(self):
         """
-        >>> Curve1D(lambda x: x).tangent()(1)
-        1.0
-        >>> Curve1D(lambda x: x).tangent()(100)
-        1.0
-        >>> Curve2D(lambda x: (x, 2)).tangent()(100)
-        Vector2D(1.0, 0.0)
-        >>> Curve3D(lambda x: (x, 2, 0)).tangent()(1)
-        Vector3D(1.0, 0.0, 0.0)
+        Examples:
+            >>> Curve1D(lambda x: x).tangent()(1)
+            1.0
+            >>> Curve1D(lambda x: x).tangent()(100)
+            1.0
+            >>> Curve2D(lambda x: (x, 2)).tangent()(100)
+            Vector2D(1.0, 0.0)
+            >>> Curve3D(lambda x: (x, 2, 0)).tangent()(1)
+            Vector3D(1.0, 0.0, 0.0)
         """
         d = self.derivative()
         return d / abs(d)
@@ -169,30 +196,20 @@ class Curve:
         return self.__doc__
 
     def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
+        mpl_kwargs = {}
+        if "color" in kwargs:
+            mpl_kwargs["color"] = kwargs["color"]
+        if "line" in kwargs:
+            mpl_kwargs["marker"] = kwargs["marker"]
         if not isinstance(interval, Interval):
             raise Exception("Missing interval for plot")
-        trayectory = self.map(interval, delta)
-        ax.plot(trayectory.x, trayectory.y)
+        trajectory = self.map(interval, delta)
+        ax.plot(trajectory.x, trajectory.y, **mpl_kwargs)
 
 
 class Curve1D(Curve):
-    """
-    >>> (Curve1D(lambda x: x**2) + Curve1D(lambda x: -x))(1)
-    0
-    >>> (Curve1D(lambda x: x**2) + 1)(1)
-    2
-    """
-
-    def __init__(self, function=None, **kwargs):
-        @wraps(function)
-        def _function_wrapper(*args, **kwargs):
-            return function(*args, **kwargs)
-
-        if kwargs.get("keys", None) is None:
-            kwargs["keys"] = ("x", "y")
-
-        kwargs["codomain"] = Number
-        super().__init__(function=_function_wrapper if function else None, **kwargs)
+    codomain = RealNumber
+    _keys = ("x", "y")
 
     def integrate(self, a, b, h=_h, integrator=simpson_second_rule):
         _integrator = cache(integrator)
@@ -205,8 +222,15 @@ class Curve1D(Curve):
         return factor * sum(map(lambda t: _integrator(self, t, t + h), interval(h)))
 
     def __add__(self, other):
+        """
+        Examples:
+            >>> (Curve1D(lambda x: x**2) + Curve1D(lambda x: -x))(1)
+            0
+            >>> (Curve1D(lambda x: x**2) + 1)(1)
+            2
+        """
         _new_func = None
-        if isinstance(other, self.codomain):
+        if self.codomain.is_compatible(other):
 
             def _new_func(x):
                 return self(x) + other
@@ -244,48 +268,61 @@ class Curve1D(Curve):
         2.0
         """
         _new_func = None
-        if isinstance(other, Number):
+        if RealNumber.is_compatible(other):
 
-            def _new_func(x):
-                return other / self(x)
+            def _new_func(*args, **kwargs):
+                return other / self(*args, **kwargs)
 
         if _new_func is not None:
             return Curve1D(function=_new_func)
         raise TypeError("Can not perform division with non scalar")
 
     def __pow__(self, other):
-        return Curve1D(function=lambda t: self(t) ** other)
+        cls, _new_func = Curve1D, None
+        if isinstance(other, cls):
 
-    def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
+            def _new_func(*args, **kwargs):
+                return self(*args, **kwargs) ** other(*args, **kwargs)
+
+        elif RealNumber.is_compatible(other):
+
+            def _new_func(*args, **kwargs):
+                return self(*args, **kwargs) ** other
+
+        return cls(function=_new_fuc)
+
+    def map(self, interval, h=0.1, keys=None):
         if not isinstance(interval, Interval):
-            raise Exception("Missing interval for plot")
-        trayectory = self.map(interval, delta, keys=["x", "y"])
-        ax.plot(trayectory.x, trayectory.y)
+            raise Exception("Must evaluate at an interval")
+        if h <= 0:
+            raise Exception("Delta should be greater than 0.")
+        return Trajectory(
+            *[Vector2D(t, self(t)) for t in interval(h)], keys=(keys or self._keys)
+        )
 
 
 class Curve2D(Curve):
     """
-    >>> (Curve2D(lambda x: (x**2, x)) + Curve2D(lambda x: (-x, 1)))(0)
-    Vector2D(0, 1)
-    >>> (Curve2D(lambda x: (x**2, x)) + Vector2D(1, 1))(0)
-    Vector2D(1, 1)
-    >>> (Curve2D(lambda x: (x**2, x)) * 2)(1)
-    Vector2D(2, 2)
-    >>> (Curve2D(lambda x: (x**2, x)) * Curve1D(lambda x: x**2))(1)
-    Vector2D(1, 1)
-    >>> (Curve2D(lambda x: (x**2, x)) * Curve2D(lambda x: (0, 0)))(0)
-    0
-    >>> (Curve2D(lambda x: (x**2, x)) * Curve2D(lambda x: (1, 1)))(1)
-    2
-    >>> (Curve2D(lambda x: (x**2, x)) * Vector2D(1, 0))(1)
-    1
+    Examples:
+
+        >>> (Curve2D(lambda x: (x**2, x)) + Curve2D(lambda x: (-x, 1)))(0)
+        Vector2D(0, 1)
+        >>> (Curve2D(lambda x: (x**2, x)) + Vector2D(1, 1))(0)
+        Vector2D(1, 1)
+        >>> (Curve2D(lambda x: (x**2, x)) * 2)(1)
+        Vector2D(2, 2)
+        >>> (Curve2D(lambda x: (x**2, x)) * Curve1D(lambda x: x**2))(1)
+        Vector2D(1, 1)
+        >>> (Curve2D(lambda x: (x**2, x)) * Curve2D(lambda x: (0, 0)))(0)
+        0
+        >>> (Curve2D(lambda x: (x**2, x)) * Curve2D(lambda x: (1, 1)))(1)
+        2
+        >>> (Curve2D(lambda x: (x**2, x)) * Vector2D(1, 0))(1)
+        1
     """
 
-    def __init__(self, function=None, **kwargs):
-        kwargs["codomain"] = Vector2D
-        if kwargs.get("keys", None) is None:
-            kwargs["keys"] = ("t", "x", "y")
-        super().__init__(function=function, **kwargs)
+    codomain = Vector2D
+    _keys = ("t", "x", "y")
 
     @property
     def J(self):
@@ -300,29 +337,33 @@ class Curve2D(Curve):
         return abs(d * dd.J) / abs(d) ** 3
 
     def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
+        mpl_kwargs = {}
+        if "color" in kwargs:
+            mpl_kwargs["color"] = kwargs["color"]
+        if "line" in kwargs:
+            mpl_kwargs["marker"] = kwargs["marker"]
         if not isinstance(interval, Interval):
             raise Exception("Missing interval for plot")
-        trayectory = self.map(interval, delta, keys=["t", "x", "y"])
-        ax.plot(trayectory.x, trayectory.y)
+        trajectory = self.map(interval, delta, keys=["t", "x", "y"])
+        ax.plot(trajectory.x, trajectory.y)
 
 
 class Curve3D(Curve):
     """
-    >>> (Curve3D(lambda x: (x**2, x, -x)) + Curve3D(lambda x: (-x, 1, x)))(0)
-    Vector3D(0, 1, 0)
-    >>> (Curve3D(lambda x: (x**2, x, -x)) + Vector3D(1, 1, 1))(0)
-    Vector3D(1, 1, 1)
-    >>> (Curve3D(lambda x: (x**2, x, -x)) * 2)(1)
-    Vector3D(2, 2, -2)
-    >>> (Curve3D(lambda x: (x**2, x, -x)) * Curve1D(lambda x: x**2))(1)
-    Vector3D(1, 1, -1)
+    Examples:
+
+        >>> (Curve3D(lambda x: (x**2, x, -x)) + Curve3D(lambda x: (-x, 1, x)))(0)
+        Vector3D(0, 1, 0)
+        >>> (Curve3D(lambda x: (x**2, x, -x)) + Vector3D(1, 1, 1))(0)
+        Vector3D(1, 1, 1)
+        >>> (Curve3D(lambda x: (x**2, x, -x)) * 2)(1)
+        Vector3D(2, 2, -2)
+        >>> (Curve3D(lambda x: (x**2, x, -x)) * Curve1D(lambda x: x**2))(1)
+        Vector3D(1, 1, -1)
     """
 
-    def __init__(self, function=None, **kwargs):
-        kwargs["codomain"] = Vector3D
-        if kwargs.get("keys", None) is None:
-            kwargs["keys"] = ("t", "x", "y", "z")
-        super().__init__(function=function, **kwargs)
+    codomain = Vector3D
+    _keys = ("t", "x", "y", "z")
 
     def __xor__(self, other):
         _new_func = None
@@ -344,10 +385,15 @@ class Curve3D(Curve):
         return self.tangent() ^ self.normal()
 
     def _plot_3d(self, ax, interval=None, delta=None, **kwargs):
+        mpl_kwargs = {}
+        if "color" in kwargs:
+            mpl_kwargs["color"] = kwargs["color"]
+        if "line" in kwargs:
+            mpl_kwargs["marker"] = kwargs["marker"]
         if not isinstance(interval, Interval):
             raise Exception("Missing interval for plot")
-        trayectory = self.map(interval, delta, keys=["t", "x", "y", "z"])
-        ax.plot(trayectory.x, trayectory.y, trayectory.z)
+        trajectory = self.map(interval, delta, keys=["t", "x", "y", "z"])
+        ax.plot(trajectory.x, trajectory.y, trajectory.z, **mpl_kwargs)
 
 
 if __name__ == "__main__":

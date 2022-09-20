@@ -6,5 +6,6 @@ coverage run --source odeanimate -m \
     --doctest-modules \
     odeanimate tests
 EXIT_CODE=$?
-coverage report
+[[ "${EXIT_CODE}" == "0" ]] && coverage report
+coverage json -o .coverage.json
 exit ${EXIT_CODE}

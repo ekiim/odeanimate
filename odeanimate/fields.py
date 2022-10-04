@@ -89,3 +89,4 @@ class ScalarField2D(ScalarField):
 
     domain = Vector2D
     codomain = RealNumber
+

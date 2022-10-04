@@ -18,6 +18,8 @@ class ODEAnimateAxes(Axes):
         self.spines["right"].set_color("none")
         self.set_xlim(x_min, x_max)
         self.set_ylim(y_min, y_max)
+        self.set_xlabel('$x$', size=14, labelpad=-24, x=1.05)
+        self.set_ylabel('$y$', size=14, labelpad=-21, y=1.05, rotation=0)
 
     def set_limits(self, x_interval, y_interval=None):
         if y_interval is None:

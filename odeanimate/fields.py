@@ -1,4 +1,4 @@
-from odeanimate.mixin import MathematicalFunction
+from odeanimate.meta import MathematicalFunction
 from odeanimate.utils import cache, RealNumber
 from odeanimate.vector import Vector, Vector2D, Vector3D
 

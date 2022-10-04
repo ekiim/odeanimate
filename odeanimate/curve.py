@@ -11,7 +11,7 @@ for the curves will be $t$.
 from odeanimate.domains import Interval
 from odeanimate.vector import Vector, Vector2D, Vector3D
 from odeanimate.codomain import Trajectory
-from odeanimate.mixin import MathematicalFunction
+from odeanimate.meta import MathematicalFunction
 from odeanimate.utils import (
     cache,
     h as _h,

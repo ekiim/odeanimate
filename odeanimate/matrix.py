@@ -1,10 +1,11 @@
 from math import sin, cos
 from numbers import Number
 from odeanimate.utils import slice_to_range, tolerance
+from odeanimate.array import Array
 from odeanimate.vector import Vector
 
 
-class Matrix:
+class Matrix(Array):
     def __init__(self, *rows, shape=None, **kwargs):  # pylint: disable=W0613
         rows_count = len(rows)
         column_count = len(rows[0])
@@ -133,7 +134,8 @@ class Matrix:
         if isinstance(other, Matrix) and self.shape[1] == other.shape[0]:
             new_shape = self.shape[0], other.shape[1]
             return Matrix(
-                [a.dot(b) for a in self.rows for b in other.columns], shape=new_shape
+                [a.dot(b) for a in self.rows for b in other.columns],
+                shape=new_shape,
             )
         if isinstance(other, Vector) and self.shape[1] == other.dimension:
             return Vector(
@@ -141,7 +143,9 @@ class Matrix:
             )
         if isinstance(other, Number):
             return Matrix([x * other for x in self.array], shape=self.shape)
-        raise Exception(f"Unsoported Operation betwee Matrix and {other.__class__}")
+        raise Exception(
+            f"Unsoported Operation betwee Matrix and {other.__class__}"
+        )
 
     def __rmul__(self, other):
         """
@@ -161,7 +165,9 @@ class Matrix:
     def _descriptor_to_cell_positions(self, row, col):
         rows = slice_to_range(row) if isinstance(row, slice) else [row]
         cols = slice_to_range(col) if isinstance(col, slice) else [col]
-        return [self._cell_position_to_array_pos(i, j) for i in rows for j in cols]
+        return [
+            self._cell_position_to_array_pos(i, j) for i in rows for j in cols
+        ]
 
     def __eq__(self, other):
         """

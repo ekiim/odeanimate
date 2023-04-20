@@ -1,66 +1,45 @@
+from odeanimate.array import Array, _ArrayHTMLDisplay
 from odeanimate.vector import Vector
 
 
-class Trajectory:
+class Trajectory(Array, _ArrayHTMLDisplay):
+    _html_styles_cell = ""
+    _html_axis = True
+
+    def _get_column_name(self, index):
+        returnable = f"col_{index}"
+        if self._keys:
+            returnable = self._keys[index]
+        return returnable
+
     def __init__(self, *args, keys=None, **kwargs):
-        if any((not Vector.is_compatible(v) for v in args)):
-            raise Exception("Incompatible Object")
-        rows = tuple(Vector.from_compatible(v) for v in args)
-        if len(set(len(v) for v in rows)) != 1:
-            raise Exception("Inconsistent row found")
-        self._rows = rows
-        self._shape = (len(rows), len(rows[0]))
-        self.set_keys(keys)
+        if hasattr(args[0][-1], "__iter__"):
+            args_super = [(*arg[:-1], *arg[-1]) for arg in args]
+        else:
+            args_super = args
+        super().__init__(*args_super, **kwargs)
+        if False and len(self._shape) != 2:
+            raise Exception("Incompatible structure for trajectory.")
+        if (
+            keys is not None
+            and hasattr(keys, "__len__")
+            and len(keys) == self._shape[1]
+        ):
+            self._keys = tuple(keys)
+        else:
+            self._keys = None
 
-    def set_keys(self, keys=None):
-        if keys is None:
-            keys = [f"col_{i}" for i in range(1, self._shape[1] + 1)]
-
-        if any((not isinstance(k, str) for k in keys)):
-            raise Exception("Keys are not strings")
-        self._keys = tuple(keys)
-
-    def get_column_by_key(self, *keys):
-        if len(keys) == 1:
-            key = keys[0]
-        if key in self._keys:
-            index = self._keys.index(key)
-            return Vector(*[v[index] for v in self._rows])
-        raise Exception("Multiple keys not supported yet")
-
-    def __getitem__(self, key):
-        return self.__getattr__(key)
-
-    def __repr__(self):
-        rows, cols = self._shape
-        return f"<Trajectory rows={rows} cols={cols} keys={self._keys}>"
+    def __getitem__(self, keys):
+        if keys in (self._keys or []):
+            column = self._keys.index(keys)
+            return super().__getitem__((slice(None, None, None), column))
+        super().__getitem__(keys)
 
     def __getattr__(self, name):
-        return self.get_column_by_key(name)
-        raise Exception("Attribute doesn't exist in keys")
-
-    def _repr_html_(self):
-        keys = self._keys
-        return "".join(
-            [
-                "<table>",
-                "<thead>",
-                "<tr>",
-                *[f"<th>${k}$</th>" for k in keys],
-                "</tr>",
-                "</thead>",
-                "<tbody>",
-                *[
-                    "".join(["<tr>", *[f"<td>{str(x)}</td>" for x in row], "</tr>"])
-                    for row in self._rows
-                ],
-                "</tbody>",
-                "</table>",
-            ]
-        )
-
-    def _ipython_display_(self):
-        return self._repr_html_()
+        if name in (self._keys or []):
+            column = self._keys.index(name)
+            return super().__getitem__((slice(None, None, None), column))
+        raise AttributeError
 
     def _plot_2d(self, ax, keys=["x", "y"], **kwargs):
         x = getattr(self, keys[0])
@@ -72,3 +51,7 @@ class Trajectory:
         y = getattr(self, keys[1])
         z = getattr(self, keys[2])
         ax.plot(x, y, z)
+
+    def _repr_data(self):
+        rows, cols = self._shape
+        return f"rows={rows} cols={cols} keys={self._keys}"

@@ -18,8 +18,8 @@ class ODEAnimateAxes(Axes):
         self.spines["right"].set_color("none")
         self.set_xlim(x_min, x_max)
         self.set_ylim(y_min, y_max)
-        self.set_xlabel('$x$', size=14, labelpad=-24, x=1.05)
-        self.set_ylabel('$y$', size=14, labelpad=-21, y=1.05, rotation=0)
+        self.set_xlabel("$x$", size=14, labelpad=-24, x=1.05)
+        self.set_ylabel("$y$", size=14, labelpad=-21, y=1.05, rotation=0)
 
     def set_limits(self, x_interval, y_interval=None):
         if y_interval is None:
@@ -34,7 +34,9 @@ class ODEAnimateAxes(Axes):
         if x_min <= 0 <= x_max:
             self.spines["left"].set_position("zero")
         else:
-            self.spines["left"].set_position(("data", min([x_min, x_max], key=abs)))
+            self.spines["left"].set_position(
+                ("data", min([x_min, x_max], key=abs))
+            )
 
     def set_ylim(self, y_min, y_max=None, *args, **kwargs):
         if isinstance(y_min, Interval):
@@ -43,7 +45,9 @@ class ODEAnimateAxes(Axes):
         if y_min <= 0 <= y_max:
             self.spines["bottom"].set_position("zero")
         else:
-            self.spines["bottom"].set_position(("data", min([y_min, y_max], key=abs)))
+            self.spines["bottom"].set_position(
+                ("data", min([y_min, y_max], key=abs))
+            )
 
     def add(self, *elements, **kwargs):
         for elem in elements:
@@ -59,18 +63,25 @@ class ODEAnimateAxes(Axes):
 
     def set_markers(self, x_markers=None, y_markers=None, major=True):
         for axis, markers in [(self.xaxis, x_markers), (self.yaxis, y_markers)]:
-            if markers is not None and all([isinstance(x, Number) for x in markers]):
+            if markers is not None and all(
+                [isinstance(x, Number) for x in markers]
+            ):
                 markers = [(i, None) for i in markers]
 
-            if markers is not None and all([isinstance(x, tuple) for x in markers]):
+            if markers is not None and all(
+                [isinstance(x, tuple) for x in markers]
+            ):
                 makers = sorted(markers, key=lambda i: i[0])
                 marks, labels = zip(*markers)
-                getattr(axis, "set_major_locator" if major else "set_minor_locator")(
-                    ticker.FixedLocator(marks)
-                )
+                getattr(
+                    axis, "set_major_locator" if major else "set_minor_locator"
+                )(ticker.FixedLocator(marks))
                 if all([isinstance(label, str) for label in labels]):
                     getattr(
-                        axis, "set_major_formatter" if major else "set_minor_formatter"
+                        axis,
+                        "set_major_formatter"
+                        if major
+                        else "set_minor_formatter",
                     )(ticker.FixedFormatter(labels))
                 continue
             if markers is not None:
@@ -207,8 +218,12 @@ def interval_axes(ax, interval, *args, title=None, **kwargs):
     ax.tick_params(which="major", width=1.00, length=5, labelsize=10)
     ax.tick_params(which="minor", width=0, length=0)
 
-    _min = min((interval.non_disjoint_interval), key=lambda i: i.limits[0]).limits[0]
-    _max = max((interval.non_disjoint_interval), key=lambda i: i.limits[1]).limits[1]
+    _min = min(
+        (interval.non_disjoint_interval), key=lambda i: i.limits[0]
+    ).limits[0]
+    _max = max(
+        (interval.non_disjoint_interval), key=lambda i: i.limits[1]
+    ).limits[1]
     positions = list(
         chain(*list(map(lambda i: i.limits, interval.non_disjoint_interval)))
     )
@@ -223,5 +238,7 @@ def interval_axes(ax, interval, *args, title=None, **kwargs):
         title = "\\cup".join(
             [str(list(i.limits)) for i in interval.non_disjoint_interval]
         )
-    ax.text(0.0, 0.75, title, transform=ax.transAxes, fontsize=14, color="tab:blue")
+    ax.text(
+        0.0, 0.75, title, transform=ax.transAxes, fontsize=14, color="tab:blue"
+    )
     return ax

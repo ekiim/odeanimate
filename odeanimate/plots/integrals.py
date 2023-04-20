@@ -14,7 +14,9 @@ def domain_fallback(interval):
     )
 
 
-def riemann_sum(ax, f, interval, n, domain=None, variant="left", rectangle_color="g"):
+def riemann_sum(
+    ax, f, interval, n, domain=None, variant="left", rectangle_color="g"
+):
     domain = domain if domain else domain_fallback(interval)
     f_eval = list(map(f, domain))
     X, Y = list(domain), f_eval
@@ -32,7 +34,9 @@ def riemann_sum(ax, f, interval, n, domain=None, variant="left", rectangle_color
         eval_x = riemann_variant_step(variant, x, step)
         area += riemann_variant(variant, f, x, step)
         ax.plot(
-            [x, x, x + step, x + step], [0, f(eval_x), f(eval_x), 0], c=rectangle_color
+            [x, x, x + step, x + step],
+            [0, f(eval_x), f(eval_x), 0],
+            c=rectangle_color,
         )
         ax.scatter([eval_x], [f(eval_x)], c=rectangle_color, s=100 / (n))
 
@@ -47,5 +51,7 @@ def riemann_sum(ax, f, interval, n, domain=None, variant="left", rectangle_color
     return ax, area
 
 
-def riemann_integral(ax, f, interval, n, domain=None, rectangle_color="g", **kwargs):
+def riemann_integral(
+    ax, f, interval, n, domain=None, rectangle_color="g", **kwargs
+):
     return ax

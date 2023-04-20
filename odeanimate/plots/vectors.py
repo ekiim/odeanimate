@@ -17,7 +17,7 @@ def vector_2d_single(
         angles="xy",
         scale_units="xy",
         scale=1,
-        **kwargs
+        **kwargs,
     )
     if isinstance(label, str):
         angle = vector.angle_full
@@ -49,7 +49,10 @@ def vector_2d_tails(ax, *vectors, labels=None, **kwargs):
 
 
 def vector_2d_angle_between(ax, a, b, base=Vector2D(0, 0), label=None):
-    A, B = Vector2D.from_vector(a).angle_full, Vector2D.from_vector(b).angle_full
+    A, B = (
+        Vector2D.from_vector(a).angle_full,
+        Vector2D.from_vector(b).angle_full,
+    )
 
     if A > B:
         B = B + 2 * math.pi
@@ -64,8 +67,8 @@ def vector_2d_angle_between(ax, a, b, base=Vector2D(0, 0), label=None):
             r * math.sin(_alpha) + base.y,
         )
 
-    trayectory = (_circle + base).map(Interval(0, 1), 0.05)
-    ax.plot(trayectory[:, 1], trayectory[:, 2])
+    trajectory = (_circle + base).map(Interval(0, 1), 0.05)
+    ax.plot(trajectory[:, 1], trajectory[:, 2])
 
     if isinstance(label, str):
         pos = _circle(0.5) * 1.5

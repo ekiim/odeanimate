@@ -17,10 +17,11 @@ as if each method or class definition is a _lemma_.
 
 from functools import wraps
 from math import acos, atan2
+from odeanimate.array import Array
 from odeanimate.utils import tolerance, RealNumber
 
 
-class Vector:
+class Vector(Array):
     """Vector base class
 
     The methods implemented here apply to any other type of vector, which
@@ -61,17 +62,14 @@ class Vector:
             >>> Vector(1, "2")
             Traceback (most recent call last):
               ...
-            Exception: Error on args, invalid types.
+            Exception: Invalid types on values of input structure.
         """
-        if isinstance(args[0], self.__class__):
-            args = args[0].values
-        if any((not RealNumber.is_compatible(i) for i in args)):
-            raise Exception("Error on args, invalid types.")
-
-        self.dimension = len(args)
-        self.values = args
+        super().__init__(*args, **kwargs)
         self.origin = kwargs.get("origin", None)
-        if self.origin is not None and not isinstance(self.origin, (self.__class__)):
+        self.dimension = self.shape[0]
+        if self.origin is not None and not isinstance(
+            self.origin, (self.__class__)
+        ):
             raise TypeError("Unsupported origin for the vector")
 
     def __len__(self):
@@ -102,7 +100,9 @@ class Vector:
             Exception: Object Vector(1, 2) and Vector(1, 2, 3) not compatible dimensions
         """
         if self.dimension != other.dimension:
-            raise Exception(f"Object {self} and {other} not compatible dimensions")
+            raise Exception(
+                f"Object {self} and {other} not compatible dimensions"
+            )
 
     def validation_type(self, other):
         """
@@ -126,7 +126,7 @@ class Vector:
         You can pass a single argument to specify which $p$ value, defaulted
         to $p=2$.
         """
-        return sum(abs(i) ** p for i in self.values) ** (1.0 / p)
+        return sum(abs(i) ** p for i in self) ** (1.0 / p)
 
     def euclidean_norm(self):
         """
@@ -147,7 +147,7 @@ class Vector:
         """
         self.validation_type(right)
         self.validation_dimension(right)
-        return sum(i * j for (i, j) in zip(self.values, right.values))
+        return sum(i * j for (i, j) in zip(self, right))
 
     @property
     def direction(self):
@@ -211,7 +211,7 @@ class Vector:
             return Vector(self[0] + right)
         self.validation_type(right)
         self.validation_dimension(right)
-        return self.__class__(*[sum(i) for i in zip(self.values, right.values)])
+        return self.__class__(*[sum(i) for i in zip(self, right)])
 
     def __radd__(self, other):
         """
@@ -259,7 +259,7 @@ class Vector:
         if RealNumber.is_compatible(left) or (
             isinstance(left, self.__class__) and len(left) == 1
         ):
-            return self.__class__(*[left * v for v in self.values])
+            return self.__class__(*[left * v for v in self])
         if isinstance(left, Vector) and self.dimension == left.dimension:
             return self.dot(left)
         raise Exception(f"Can not operate with {type(left).__name__}")
@@ -340,7 +340,7 @@ class Vector:
         try:
             criteria = [
                 self.dimension == other.dimension,
-                all((i == j for (i, j) in zip(self.values, other.values))),
+                all((i == j for (i, j) in zip(self, other))),
             ]
             returnable = all(criteria)
         except:
@@ -372,14 +372,14 @@ class Vector:
             Exception: Invalid Descriptor.
         """
         if isinstance(_slice, slice):
-            return self.__class__(*self.values[_slice])
+            return self.__class__(*super().__getitem__(_slice))
         elif isinstance(_slice, int):
-            return self.values[_slice]
+            return super().__getitem__(_slice)
         raise Exception("Invalid Descriptor.")
 
     def __str__(self):
         """This is the string representation of a vector)"""
-        return f"{self.__class__.__name__}{self.values}"
+        return f"{self.__class__.__name__}{self._array}"
 
     def __repr__(self):
         """This is the "terminal" representation of a vector)"""
@@ -391,7 +391,7 @@ class Vector:
         to  number.
         """
         if len(self) == 1:
-            return float(self.values[0])
+            return float(self[0])
         raise Exception("Can not convert Vector to float or number.")
 
     def _repr_latex_(self):
@@ -399,12 +399,6 @@ class Vector:
         This method is to write a vector as latex, used for jupyter notebooks.
         """
         return "".join(["$(", ",".join(map(str, self)), ")$"])
-
-    def __hash__(self):
-        return hash((self.__class__, *self.values))
-
-    def __iter__(self):
-        yield from self.values
 
     @classmethod
     def from_vector(cls, vector):
@@ -427,12 +421,13 @@ class Vector:
 
         Files that use this:
 
-            examples/plots-isoclines-examples-with-solution.py
-            examples/plots-isoclines-examples.py
-            examples/plots-isoclines-orthogonal-curves-solutions.py
-            examples/plots-isoclines-orthogonal-curves.py
-            examples/plots-isoclines.py
-            examples/vector-curve-function.py
+            - examples/plots-isoclines-examples-with-solution.py
+            - examples/plots-isoclines-examples.py
+            - examples/plots-isoclines-orthogonal-curves-solutions.py
+            - examples/plots-isoclines-orthogonal-curves.py
+            - examples/plots-isoclines.py
+            - examples/vector-curve-function.py
+
         """
 
         @wraps(func)
@@ -461,7 +456,9 @@ class Vector:
             return cls(object)
         except:
             pass
-        raise Exception(f"Object {object} not compatible with {cls.__name__} class")
+        raise Exception(
+            f"Object {object} not compatible with {cls.__name__} class"
+        )
 
 
 """
@@ -486,7 +483,7 @@ class Vector2D(Vector):
 
     def __init__(self, x, y=None, **kwargs):
         if isinstance(x, Vector):
-            x, y = x.values
+            x, y = x
         super().__init__(x, y, **kwargs)
 
     def __len__(self):
@@ -499,11 +496,11 @@ class Vector2D(Vector):
 
     @property
     def x(self):
-        return self.values[0]
+        return self[0]
 
     @property
     def y(self):
-        return self.values[-1]
+        return self[-1]
 
     @property
     def angle(self):
@@ -592,7 +589,9 @@ class Vector2D(Vector):
 
     @classmethod
     def is_compatible(cls, *value):
-        if len(value) == 2 and all([RealNumber.is_compatible(x) for x in value]):
+        if len(value) == 2 and all(
+            [RealNumber.is_compatible(x) for x in value]
+        ):
             return True
         return NotImplemented
 
@@ -635,7 +634,7 @@ class Vector3D(Vector):
 
     def __init__(self, x, y=None, z=None, **kwargs):
         if isinstance(x, Vector):
-            x, y, z = x.values
+            x, y, z = x
         super().__init__(x, y, z, **kwargs)
 
     def __len__(self):
@@ -673,15 +672,15 @@ class Vector3D(Vector):
 
     @property
     def x(self):
-        return self.values[0]
+        return self[0]
 
     @property
     def y(self):
-        return self.values[1]
+        return self[1]
 
     @property
     def z(self):
-        return self.values[2]
+        return self[2]
 
     @classmethod
     def from_vector(cls, vector):
@@ -692,7 +691,9 @@ class Vector3D(Vector):
 
     @classmethod
     def is_compatible(cls, *value):
-        if len(value) == 3 and all([RealNumber.is_compatible(x) for x in value]):
+        if len(value) == 3 and all(
+            [RealNumber.is_compatible(x) for x in value]
+        ):
             return True
         return NotImplemented
 
@@ -717,9 +718,3 @@ class Vector3D(Vector):
 
     def to_2D(self):
         return Vector2D(self.x, self.y)
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod(verbose=False)

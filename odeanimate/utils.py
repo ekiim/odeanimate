@@ -1,7 +1,6 @@
 from math import pi, sin, cos
-from array import array
 from pathlib import Path
-from functools import lru_cache
+from functools import lru_cache, reduce
 from numbers import Real
 import operator
 
@@ -38,6 +37,10 @@ tolerance = tolreance
 
 
 def mul(values):
+    """
+    >>> mul([])
+    1
+    """
     return reduce(operator.mul, values, 1)
 
 
@@ -131,8 +134,12 @@ class Interpolator:
         if t > M or t < m:
             raise Exception("Out of bound")
 
-        lower = min(filter(lambda k: k < self.values.keys()), key=lambda k: abs(t - k))
-        upper = min(filter(lambda k: k > self.values.keys()), key=lambda k: abs(t - k))
+        lower = min(
+            filter(lambda k: k < self.values.keys()), key=lambda k: abs(t - k)
+        )
+        upper = min(
+            filter(lambda k: k > self.values.keys()), key=lambda k: abs(t - k)
+        )
         return t * (self.values[upper] - self.values[lower]) / (upper - lower)
 
     @property

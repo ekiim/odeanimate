@@ -12,7 +12,9 @@ class MathematicalFunction:
     codomain = None
     _keys = None
 
-    def __init__(self, function=None, domain=None, codomain=None, keys=None, **kwargs):
+    def __init__(
+        self, function=None, domain=None, codomain=None, keys=None, **kwargs
+    ):
         if domain is not None:
             self.domain = domain
         elif self.domain is None:
@@ -53,9 +55,15 @@ class MathematicalFunction:
 
     def __add__(self, other):
         _new_func, cls = None, None
-        if isinstance(other, MathematicalFunction) and self.domain != other.domain:
+        if (
+            isinstance(other, MathematicalFunction)
+            and self.domain != other.domain
+        ):
             raise Exception("Incompatible domains")
-        if isinstance(other, self.__class__) and self.codomain == other.codomain:
+        if (
+            isinstance(other, self.__class__)
+            and self.codomain == other.codomain
+        ):
 
             def _new_func(*args, **kwargs):
                 return self(*args, **kwargs) + other(*args, **kwargs)
@@ -106,7 +114,9 @@ class MathematicalFunction:
         if self.domain != other.domain:
             raise Exception("Incompatible domains")
 
-        if self.codomain.is_compatible(other) or RealNumber.is_compatible(other):
+        if self.codomain.is_compatible(other) or RealNumber.is_compatible(
+            other
+        ):
 
             def _new_func(*args, **kwargs):
                 return self(*args, **kwargs) * other

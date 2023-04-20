@@ -13,7 +13,7 @@ steps:
   - name: dockersock
     path: /var/run/docker.sock
   commands:
-  - docker build -t odeanimate:drone-${DRONE_COMMIT} .
+  - docker build -t odeanimate:drone-${DRONE_COMMIT} -f ./scripts/Dockerfile .
 
 - name: Black
   image: odeanimate:drone-${DRONE_COMMIT}
@@ -32,7 +32,7 @@ steps:
 - name: Documentation
   image: odeanimate:drone-${DRONE_COMMIT}
   commands:
-    - ./scripts/docs.sh
+    - ./scripts/build-docs.sh
   depends_on:
     - Build Docker Image
 
@@ -67,20 +67,17 @@ steps:
 - name: Publish to PyPi
   image: odeanimate:drone-${DRONE_COMMIT}
   environment:
-    PYPI_USERNAME: "__token__"
-    PYPI_PASSWORD:
+    PYPI_TOKEN:
       from_secret: PYPI_TOKEN_FULL
   commands:
   - date
-  - poetry config pypi-token.pypi $${PYPI_PASSWORD}
-  - poetry build
-  - poetry publish -v
+  - ./scripts/publish.sh
 
 - name: Generate Documentation Site
   image: odeanimate:drone-${DRONE_COMMIT}
   commands:
   - date
-  - poetry run ./scripts/docs.sh
+  - ./scripts/build-docs.sh
 
 - name: Deploy Documentation Site
   image: drillster/drone-rsync

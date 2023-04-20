@@ -1,4 +1,5 @@
 site_name: odeanimate
+repo_name: 'ekiim/odeanimate'
 
 nav:
 - Home: index.md
@@ -6,28 +7,31 @@ nav:
 - Examples: examples/index.md
 
 plugins:
+  - search
+  - autorefs
   - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
       default_handler: python
       handlers:
         python:
           options:
             members_order: source
-            show_source: false
-  - autorefs
-  - mkdocs-jupyter:
-      execute: True
-      execute_ignore: "*.py"
-      allow_errors: False
-      include_source: True
+            show_source: true
+  - mknotebooks:
+      execute: true
+      timeout: 50
+      allow_errors: true
+      binder: true
+      binder_service_name: "gh"
+      binder_service_name: "gh"
+      binder_branch: "master"
 
 markdown_extensions:
   - def_list
-  - pymdownx.tasklist:
-      custom_checkbox: true
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_lang_class: true
+
 
 theme:
-  name: mkdocs
-  highlightjs: true
-  hljs_languages:
-  - yaml
-  - python
+  name: "material"

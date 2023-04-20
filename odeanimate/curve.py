@@ -159,7 +159,8 @@ class Curve(MathematicalFunction):
         if h <= 0:
             raise Exception("Delta should be greater than 0.")
         return Trajectory(
-            *[Vector(t, *self(t)) for t in interval(h)], keys=(keys or self._keys)
+            *[(t, *self(t)) for t in interval(h)],
+            keys=(keys or self._keys),
         )
 
     def derivative(self, h=_h):
@@ -196,14 +197,16 @@ class Curve(MathematicalFunction):
         return self.__doc__
 
     def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
-        mpl_kwargs = {}
+        mpl_kwargs, map_kwargs = {}, {}
         if "color" in kwargs:
             mpl_kwargs["color"] = kwargs["color"]
         if "line" in kwargs:
             mpl_kwargs["marker"] = kwargs["marker"]
+        if "keys" in kwargs:
+            map_kwargs["keys"] = kwargs["keys"]
         if not isinstance(interval, Interval):
             raise Exception("Missing interval for plot")
-        trajectory = self.map(interval, delta)
+        trajectory = self.map(interval, delta, **map_kwargs)
         ax.plot(trajectory.x, trajectory.y, **mpl_kwargs)
 
 
@@ -219,7 +222,9 @@ class Curve1D(Curve):
         else:
             interval = Interval(b, a)
             factor = -1
-        return factor * sum(map(lambda t: _integrator(self, t, t + h), interval(h)))
+        return factor * sum(
+            map(lambda t: _integrator(self, t, t + h), interval(h))
+        )
 
     def __add__(self, other):
         """
@@ -289,7 +294,12 @@ class Curve1D(Curve):
             def _new_func(*args, **kwargs):
                 return self(*args, **kwargs) ** other
 
-        return cls(function=_new_fuc)
+        else:
+            raise Exception(
+                f"Incompatible operation between {self.__class__} and {other.__class__}"
+            )
+
+        return cls(function=_new_func)
 
     def map(self, interval, h=0.1, keys=None):
         if not isinstance(interval, Interval):
@@ -297,7 +307,8 @@ class Curve1D(Curve):
         if h <= 0:
             raise Exception("Delta should be greater than 0.")
         return Trajectory(
-            *[Vector2D(t, self(t)) for t in interval(h)], keys=(keys or self._keys)
+            *[Vector2D(t, self(t)) for t in interval(h)],
+            keys=(keys or self._keys),
         )
 
 
@@ -334,7 +345,7 @@ class Curve2D(Curve):
     def curvature(self):
         d = self.derivative()
         dd = d.derivative()
-        return abs(d * dd.J) / abs(d) ** 3
+        return abs(d * dd.J) / (abs(d) ** 3)
 
     def _plot_2d(self, ax, interval=None, delta=None, **kwargs):
         mpl_kwargs = {}
@@ -394,9 +405,3 @@ class Curve3D(Curve):
             raise Exception("Missing interval for plot")
         trajectory = self.map(interval, delta, keys=["t", "x", "y", "z"])
         ax.plot(trajectory.x, trajectory.y, trajectory.z, **mpl_kwargs)
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod(verbose=False)

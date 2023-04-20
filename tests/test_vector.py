@@ -1,24 +1,24 @@
 import pytest
+from odeanimate.array import Array
 from odeanimate.constants import pi
 from odeanimate.vector import Vector
 
 
 class TestVectorGeneric:
-
     tolerance = 1e-7
 
     def test_initialize(self):
         v = Vector(1.0, 1.0)
         assert isinstance(v, Vector)
         assert v.dimension == 2
-        assert isinstance(v.values, tuple)
+        assert isinstance(v, Array)
 
     def test_initialize_from_vector(self):
         v = Vector(1.0, 1.0)
         w = Vector(v)
         assert isinstance(w, Vector)
         assert v.dimension == 2
-        assert isinstance(v.values, tuple)
+        assert isinstance(v, Array)
 
     def test_initialize_error(self):
         with pytest.raises(Exception):

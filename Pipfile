@@ -1,0 +1,43 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+odeanimate = {path = ".", editable = true}
+
+[dev-packages]
+jupyterlab = "*"
+notebook = "*"
+black = "*"
+pytest = "*"
+mkdocs = "*"
+pylint = "*"
+ipywidgets = "*"
+jupyter-book = "*"
+mkdocstrings = {extras = ["python"], version = "*"}
+mkdocs-jupyter = "*"
+mknotebooks = "*"
+pygments = "*"
+matplotlib = "*"
+setuptools = "*"
+build = "*"
+twine = "*"
+coverage = {extras = ["toml"], version = "*"}
+pytest-cov = "*"
+pytest-doctestplus = "*"
+python-lsp-server = {extras = ["all"], version = "*"}
+ipympl = "*"
+
+[requires]
+python_version = "3.11"
+
+[scripts]
+build = "./scripts/build.sh"
+build-docs = "./scripts/build-docs.sh"
+clean = "./scripts/clean.sh"
+jupyter = "jupyter lab"
+publish = "./scripts/publish.sh"
+publish-docs = "./scripts/publish-docs.sh"
+tests = "./scripts/tests.sh"
+docs = "./scripts/build-docs.sh serve"

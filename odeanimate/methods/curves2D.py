@@ -39,7 +39,10 @@ def Circle(r=1, c=Vector2D(0, 0)):
 def LogarithmicSpirals(a, b):
     @Curve2D
     def _log_spiral(t):
-        return (a * e ** (b * t) * cos(2 * pi * t), a * e ** (b * t) * sin(2 * pi * t))
+        return (
+            a * e ** (b * t) * cos(2 * pi * t),
+            a * e ** (b * t) * sin(2 * pi * t),
+        )
 
 
 def SemicubicalParabola(t):

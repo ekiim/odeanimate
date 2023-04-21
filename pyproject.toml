@@ -33,8 +33,10 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["odeanimate"]
 license-files = ["LICENSE.txt"]
+
+[tool.setuptools.packages.find]
+include = ["odeanimate*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "odeanimate.__version__"}

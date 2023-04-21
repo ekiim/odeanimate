@@ -13,4 +13,4 @@ Good starting point could be reading the documentation for:
 - [`fields`][odeanimate.fields]
 
 """
-__version__ = "0.0.9"
+__version__ = "0.0.10"
